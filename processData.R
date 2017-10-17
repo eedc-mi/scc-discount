@@ -2,6 +2,9 @@ library(tidyverse)
 library(lubridate)
 library(stringr)
 
+thisDir <- dirname(parent.frame(2)$ofile)
+setwd(thisDir)
+
 dataPath <- file.path(
   "V:", 
   "Economic Intelligence", 
@@ -77,4 +80,4 @@ tib <- tib %>%
 
 data <- left_join(eventData, tib, by = "event_id")
 
-write_csv(data, "data.csv")
+write_rds(data, "data.rds")
