@@ -74,7 +74,7 @@ tib <- tib %>%
 tib <- tib %>%
   filter(gl_account_type == "Revenue (50)") %>%
   group_by(event_id, revenue_group) %>%
-  summarize(revenue = sum(amount), na.rm = TRUE) %>%
+  summarize(revenue = sum(amount, na.rm = TRUE)) %>%
   spread(revenue_group, revenue, fill = 0) %>%
   mutate(total_revenue = rental_revenue + other_revenue + rental_discount + food_beverage_revenue)
 
