@@ -7,7 +7,8 @@
 
 # Set Working Directory
 
-setwd("C:/Users/klangeste/OneDrive - Edmonton Economic Development Corporation/Github/scc-discount")
+thisDir <- dirname(parent.frame(2)$ofile)
+setwd(thisDir)
 
 # Load Libraries
 
