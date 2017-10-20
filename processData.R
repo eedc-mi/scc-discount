@@ -56,7 +56,7 @@ tib <- tib %>%
     gl_distribution_scheme = case_when(
       is.na(gl_distribution_scheme) & resource_type_description == "Gratuity" ~ "Gratuity (GRATUITY)",
       is.na(gl_distribution_scheme) & resource_type_description == "Discount" ~ "Room Rental Revenue (RENTAL)",
-      is.na(gl_distribution_scheme) & resource_type_description == "Conversion" ~ "Security Labour Revenue (LABOUR4)",
+      is.na(gl_distribution_scheme) &   resource_type_description == "Conversion" ~ "Security Labour Revenue (LABOUR4)",
       TRUE ~ gl_distribution_scheme
     )
   )
