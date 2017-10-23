@@ -38,6 +38,43 @@ names(eventData) <- sapply(names(eventData), fixName)
 
 glData$amount <- -1 * glData$amount
 
+# Fix some GL errors in a not-ideal way
+glData <- glData %>%
+  mutate(
+    resource_code = if_else(
+      (event_id == 5090 & resource_type_description == "Discount" & amount > 0),
+      "HALLA",
+      resource_code  
+    )
+  ) %>%
+  mutate(
+    type = if_else(
+      (event_id == 5090 & resource_type_description == "Discount" & amount > 0),
+      as.integer(1000),
+      type  
+    )
+  ) %>%
+  mutate(
+    resource_type_description = if_else(
+      (event_id == 5090 & resource_type_description == "Discount" & amount > 0),
+      "Day Rate",
+      resource_type_description
+    )
+  ) %>%
+  bind_rows(
+    tibble(
+      event_id = 8890, 
+      gl_account_type = "Revenue (50)", 
+      gl_account = "101508123000",
+      gl_account_header = "10-150-8123-000 Rental - Social/Community Revenue",
+      amount = 2100,
+      units = 1,
+      type = 1000,
+      resource_type_description = "Day Rate",
+      resource_code = "RIVER"
+    )
+  )
+
 eventData <- eventData %>% 
   mutate_if(grepl("date", names(.)), ymd) %>%
   mutate(booked_spaces = str_split(booked_spaces, ";")) %>%

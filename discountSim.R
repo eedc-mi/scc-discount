@@ -1,9 +1,9 @@
 library(tidyverse)
 library(lubridate)
 library(stringr)
+library(here)
 
-thisDir <- dirname(parent.frame(2)$ofile)
-setwd(thisDir)
+setwd(here())
 
 tib <- read_rds("data.rds")
 
