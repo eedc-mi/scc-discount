@@ -71,7 +71,7 @@ simStartConditions <- function(data, minRevSeq, minDiscountSeq, fbStep, dStep, n
     mutate(new_rental_revenue = rental_revenue + (rental_revenue * new_discount)) %>%
     group_by(rev, disc, type) %>%
     summarize(new_rental_revenue = sum(new_rental_revenue, na.rm = TRUE))
-             
+  
 }
 
 simStepConditions <- function(data, fbStart, dStart, fbStepSeq, dStepSeq, numSteps) {
@@ -139,27 +139,22 @@ ggplot(filter(sim, type == "Convention (CONV)"), aes(x = rev, y = new_rental_rev
   geom_line() + 
   geom_hline(
     yintercept = c(
-      first(
-        proposedDiscResult %>% filter(type == "Convention (CONV)") %>% select(new_rental_revenue)
-      ),
-      first(
-        proposedDiscResult %>% filter(type == "Convention (CONV)") %>% select(old_rental_revenue)
-      )
-    ), 
-    color = c("red", "blue")
-  )
- 
-ggplot(filter(simStep, type == "Convention (CONV)"), aes(x = rev, y = new_rental_revenue, color = factor(disc))) +
-  geom_line() +
-  geom_hline(
-    yintercept = c(
-      first(
-        proposedDiscResult %>% filter(type == "Convention (CONV)") %>% select(new_rental_revenue)
-      ),
-      first(
-        proposedDiscResult %>% filter(type == "Convention (CONV)") %>% select(old_rental_revenue)
-      )
-    )
+      first(proposedDiscResult %>% filter(type == "Convention (CONV)") %>% select(new_rental_revenue)),
+      first(proposedDiscResult %>% filter(type == "Convention (CONV)") %>% select(old_rental_revenue))
+    ),
+    linetype = "dashed"
+  ) +
+  ggtitle("Simulation results") +
+  annotate(
+    "text", 
+    c(min(sim$rev), min(sim$rev)),
+    c(
+      first(proposedDiscResult %>% filter(type == "Convention (CONV)") %>% select(new_rental_revenue)),
+      first(proposedDiscResult %>% filter(type == "Convention (CONV)") %>% select(old_rental_revenue))
+    ),
+    vjust = -0.5,
+    hjust = 0,
+    label = c("Proposed model", "Actual revenue")
   )
 
 
