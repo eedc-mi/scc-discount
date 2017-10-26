@@ -15,6 +15,7 @@ setwd(thisDir)
 library(tidyverse)
 library(lubridate)
 library(stringr)
+library(reshape2)
 
 # Read in Data
 
@@ -28,6 +29,10 @@ d2 <- d1 %>% drop_na(rental_discount, rental_revenue)
 # Omit values of zero in the rental_revenue column
 
 d2 <- d2[!(d2$rental_revenue == 0),]
+
+# Omit positive discount values (inflation charges)
+
+d2 <- d2[!(d2$rental_discount > 0),]
 
 # Make discount amounts all positive
 
@@ -62,7 +67,7 @@ d2$month_booked <- month_booked
 
 # Add year_booked column
 
-d2$year_booked <- year(d2$date_booked)
+d2$year_booked <- as.factor(year(d2$date_booked))
 
 # Add advance_booking column (days booked in advance of event)
 
@@ -84,211 +89,207 @@ dcount <- aggregate(data.frame(count = dtest2$event_id),
 
 d2$space_count <- dcount$count
 
+# Add columns indicating if the event booked a hall, salon, and/or a room
+
+d2 <- d2 %>%
+  mutate(
+    uses_hall = as.logical(
+      map(
+        booked_spaces,
+        function(list) { 
+          any(
+            map_lgl(
+              list,
+              function (string) {
+                grepl("Hall", string)
+              }
+            )
+          )
+        }
+      )
+    )
+  ) 
+
+d2 <- d2 %>%
+  mutate(
+    uses_salon = as.logical(
+      map(
+        booked_spaces,
+        function(list) { 
+          any(
+            map_lgl(
+              list,
+              function (string) {
+                grepl("Salon", string)
+              }
+            )
+          )
+        }
+      )
+    )
+  ) 
+
+d2 <- d2 %>%
+  mutate(
+    uses_room = as.logical(
+      map(
+        booked_spaces,
+        function(list) { 
+          any(
+            map_lgl(
+              list,
+              function (string) {
+                grepl("Room", string)
+              }
+            )
+          )
+        }
+      )
+    )
+  ) 
+
 # Full Sample Stats
 #-------------------
 
-mean(d2$rental_discount)
-median(d2$rental_discount)
-sd(d2$rental_discount)
-min(d2$rental_discount)
-max(d2$rental_discount)
+d2 %>%
+  summarise(mean = mean(rental_discount),
+            median = median(rental_discount),
+            standard_dev = sd(rental_discount),
+            min = min(rental_discount),
+            max = max(rental_discount),
+            n = n())
+
+d2 %>%
+  summarise(mean = mean(percentage_discount),
+            median = median(percentage_discount),
+            standard_dev = sd(percentage_discount),
+            min = min(percentage_discount),
+            max = max(percentage_discount),
+            n = n())
 
 # Subset Stats
 #--------------
 
-# Rental Discount by type, total event attendance, advanced booking,
-# total revenue, number of days of the event, number of spaces booked,
-# event_month, and month_booked
+# Function to use for summary stats
 
-d2 %>%
-  group_by(type) %>%
-  summarise(mean = mean(rental_discount),
-            median = median(rental_discount),
-            standard_dev = sd(rental_discount),
-            min = min(rental_discount),
-            max = max(rental_discount),
-            n = n())
+summary_stats = function(df, category, discount) {
+  category <- enquo(category)
+  discount <- enquo(discount)
+  
+  df %>%
+    group_by(!!category) %>%
+    summarize(Mean = mean(!!discount),
+              Median = median(!!discount),
+              Standard_Deviation = sd(!!discount),
+              Min = min(!!discount),
+              Max = max(!!discount),
+              n = n())
+}
 
-d2 %>%
-  group_by(tea_bins) %>%
-  summarise(mean = mean(rental_discount),
-            median = median(rental_discount),
-            standard_dev = sd(rental_discount),
-            min = min(rental_discount),
-            max = max(rental_discount),
-            n = n())
+# Function to use for summary stats that involve a month variable
 
-d2 %>%
-  group_by(ab_bins) %>%
-  summarise(mean = mean(rental_discount),
-            median = median(rental_discount),
-            standard_dev = sd(rental_discount),
-            min = min(rental_discount),
-            max = max(rental_discount),
-            n = n())
+summary_stats_month = function(df, category, discount) {
+  category <- enquo(category)
+  discount <- enquo(discount)
+  
+  df %>%
+    group_by(!!category) %>%
+    summarize(Mean = mean(!!discount),
+              Median = median(!!discount),
+              Standard_Deviation = sd(!!discount),
+              Min = min(!!discount),
+              Max = max(!!discount),
+              n = n()) %>%
+    mutate(category = factor(!!!category,
+                                levels = c("January", "February", "March", "April",
+                                           "May", "June", "July", "August",
+                                           "September", "October", "November", 
+                                           "December"))) %>%
+    arrange(category) %>%
+    select(-category)
+}
 
-d2 %>%
-  group_by(tr_bins) %>%
-  summarise(mean = mean(rental_discount),
-            median = median(rental_discount),
-            standard_dev = sd(rental_discount),
-            min = min(rental_discount),
-            max = max(rental_discount),
-            n = n())
+# Summary stats for variables
 
-d2 %>%
-  group_by(number_of_days) %>%
-  summarise(mean = mean(rental_discount),
-            median = median(rental_discount),
-            standard_dev = sd(rental_discount),
-            min = min(rental_discount),
-            max = max(rental_discount),
-            n = n())
+summary_by_type <- summary_stats(d2, type, percentage_discount)
 
-d2 %>%
-  group_by(space_count) %>%
-  summarise(mean = mean(rental_discount),
-            median = median(rental_discount),
-            standard_dev = sd(rental_discount),
-            min = min(rental_discount),
-            max = max(rental_discount),
-            n = n())
+summary_by_teabins <- summary_stats(d2, tea_bins, percentage_discount)
 
-d2 %>%
-  group_by(year_booked) %>%
-  summarise(mean = mean(rental_discount),
-            median = median(rental_discount),
-            standard_dev = sd(rental_discount),
-            min = min(rental_discount),
-            max = max(rental_discount),
-            n = n())
+summary_by_abbins <- summary_stats(d2, ab_bins, percentage_discount)
 
-d2 %>%
-  group_by(event_month) %>%
-  summarise(mean = mean(rental_discount),
-            median = median(rental_discount),
-            standard_dev = sd(rental_discount),
-            min = min(rental_discount),
-            max = max(rental_discount),
-            n = n()) %>%
-  mutate(event_month = factor(event_month,
-                              levels = c("January", "February", "March", "April",
-                                         "May", "June", "July", "August",
-                                         "September", "October", "November", 
-                                         "December"))) %>%
-  arrange(event_month)
+summary_by_trbins <- summary_stats(d2, tr_bins, percentage_discount)
 
-d2 %>%
-  group_by(month_booked) %>%
-  summarise(mean = mean(rental_discount),
-            median = median(rental_discount),
-            standard_dev = sd(rental_discount),
-            min = min(rental_discount),
-            max = max(rental_discount),
-            n = n()) %>%
-  mutate(month_booked = factor(month_booked,
-                              levels = c("January", "February", "March", "April",
-                                         "May", "June", "July", "August",
-                                         "September", "October", "November", 
-                                         "December"))) %>%
-  arrange(month_booked)
+summary_by_numberofdays <- summary_stats(d2, number_of_days, percentage_discount)
 
-# Percentage Discount by type, total event attendance, advanced booking,
-# total revenue, number of days of the event, number of spaces booked,
-# event_month, and month_booked
+summary_by_spacecount <- summary_stats(d2, space_count, percentage_discount)
 
-d2 %>%
-  group_by(type) %>%
-  summarise(mean = mean(percentage_discount),
-            median = median(percentage_discount),
-            standard_dev = sd(percentage_discount),
-            min = min(percentage_discount),
-            max = max(percentage_discount),
-            n = n())
+summary_by_useshall <- summary_stats(d2, uses_hall, percentage_discount)
 
-d2 %>%
-  group_by(tea_bins) %>%
-  summarise(mean = mean(percentage_discount),
-            median = median(percentage_discount),
-            standard_dev = sd(percentage_discount),
-            min = min(percentage_discount),
-            max = max(percentage_discount),
-            n = n())
+summary_by_usessalon <- summary_stats(d2, uses_salon, percentage_discount)
 
-d2 %>%
-  group_by(ab_bins) %>%
-  summarise(mean = mean(percentage_discount),
-            median = median(percentage_discount),
-            standard_dev = sd(percentage_discount),
-            min = min(percentage_discount),
-            max = max(percentage_discount),
-            n = n())
+summary_by_usesroom <- summary_stats(d2, uses_room, percentage_discount)
 
-d2 %>%
-  group_by(tr_bins) %>%
-  summarise(mean = mean(percentage_discount),
-            median = median(percentage_discount),
-            standard_dev = sd(percentage_discount),
-            min = min(percentage_discount),
-            max = max(percentage_discount),
-            n = n())
+summary_by_yearbooked <- summary_stats(d2, year_booked, percentage_discount)
 
-d2 %>%
-  group_by(number_of_days) %>%
-  summarise(mean = mean(percentage_discount),
-            median = median(percentage_discount),
-            standard_dev = sd(percentage_discount),
-            min = min(percentage_discount),
-            max = max(percentage_discount),
-            n = n())
+# Summary stats for month variables
 
-d2 %>%
-  group_by(space_count) %>%
-  summarise(mean = mean(percentage_discount),
-            median = median(percentage_discount),
-            standard_dev = sd(percentage_discount),
-            min = min(percentage_discount),
-            max = max(percentage_discount),
-            n = n())
+summary_by_eventmonth <- summary_stats_month(d2, event_month, percentage_discount)
 
-d2 %>%
-  group_by(year_booked) %>%
-  summarise(mean = mean(percentage_discount),
-            median = median(percentage_discount),
-            standard_dev = sd(percentage_discount),
-            min = min(percentage_discount),
-            max = max(percentage_discount),
-            n = n())
+summary_by_monthbooked <- summary_stats_month(d2, month_booked, percentage_discount)
 
-d2 %>%
-  group_by(event_month) %>%
-  summarise(mean = mean(percentage_discount),
-            median = median(percentage_discount),
-            standard_dev = sd(percentage_discount),
-            min = min(percentage_discount),
-            max = max(percentage_discount),
-            n = n()) %>%
-  mutate(event_month = factor(event_month,
-                              levels = c("January", "February", "March", "April",
-                                         "May", "June", "July", "August",
-                                         "September", "October", "November", 
-                                         "December"))) %>%
-  arrange(event_month)
+# Function to create barcharts
 
-d2 %>%
-  group_by(month_booked) %>%
-  summarise(mean = mean(percentage_discount),
-            median = median(percentage_discount),
-            standard_dev = sd(percentage_discount),
-            min = min(percentage_discount),
-            max = max(percentage_discount),
-            n = n()) %>%
-  mutate(month_booked = factor(month_booked,
-                               levels = c("January", "February", "March", "April",
-                                          "May", "June", "July", "August",
-                                          "September", "October", "November", 
-                                          "December"))) %>%
-  arrange(month_booked)
+create_barchart = function(df, category, y) {
+  df %>%
+  ggplot(aes(x = category, y = y)) +
+    geom_bar(stat = "identity") +
+    xlab(colnames(df[1])) + ylab(paste(colnames(df[2]), " Percent Discount"))
+}
+
+# Function to create month variable barcharts
+
+create_month_barchart = function(df, category, y) {
+  df %>%
+  mutate(category = factor(category,
+                           levels = c("January", "February", "March", "April",
+                                      "May", "June", "July", "August",
+                                      "September", "October", "November", 
+                                      "December"))) %>%
+  arrange(category) %>%
+  ggplot(aes(x = category, y = y)) +
+    geom_bar(stat = "identity") +
+    xlab(colnames(df[1])) + ylab(paste(colnames(df[2]), " Percent Discount"))
+}
+
+# Barcharts
+
+create_barchart(summary_by_type, summary_by_type$type, summary_by_type$Mean)
+
+create_barchart(summary_by_teabins, summary_by_teabins$tea_bins, summary_by_teabins$Mean)
+
+create_barchart(summary_by_abbins, summary_by_abbins$ab_bins, summary_by_abbins$Mean)
+
+create_barchart(summary_by_trbins, summary_by_trbins$tr_bins, summary_by_trbins$Mean)
+
+create_barchart(summary_by_numberofdays, summary_by_numberofdays$number_of_days, summary_by_numberofdays$Mean)
+
+create_barchart(summary_by_spacecount, summary_by_spacecount$space_count, summary_by_spacecount$Mean)
+
+create_barchart(summary_by_useshall, summary_by_useshall$uses_hall, summary_by_useshall$Mean)
+
+create_barchart(summary_by_usessalon, summary_by_usessalon$uses_salon, summary_by_usessalon$Mean)
+
+create_barchart(summary_by_usesroom, summary_by_usesroom$uses_room, summary_by_usesroom$Mean)
+
+create_barchart(summary_by_yearbooked, summary_by_yearbooked$year_booked, summary_by_yearbooked$Mean)
+
+# Barcharts for month variables
+
+create_month_barchart(summary_by_eventmonth, summary_by_eventmonth$event_month, summary_by_eventmonth$Mean)
+
+create_month_barchart(summary_by_monthbooked, summary_by_monthbooked$month_booked, summary_by_monthbooked$Mean)
+
+#----------------------------------------------------------------------------
 
 # Rental Discount by year_booked and type, total event attendance, advanced booking,
 # total revenue, number of days of the event, number of spaces booked,
@@ -296,61 +297,45 @@ d2 %>%
 
 d2 %>%
   group_by(year_booked, type) %>%
-  summarise(mean = mean(rental_discount),
+  summarise(mean_discount = mean(rental_discount),
             median = median(rental_discount),
             standard_dev = sd(rental_discount),
             min = min(rental_discount),
             max = max(rental_discount),
-            n = n())
+            n = n()) %>%
+  ggplot(aes(x = type, y = mean_discount, fill = year_booked)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  xlab("Event Type") + ylab("Mean Rental Discount")
 
-d2 %>%
-  group_by(year_booked, tea_bins) %>%
-  summarise(mean = mean(rental_discount),
-            median = median(rental_discount),
-            standard_dev = sd(rental_discount),
-            min = min(rental_discount),
-            max = max(rental_discount),
-            n = n())
 
-d2 %>%
-  group_by(year_booked, ab_bins) %>%
-  summarise(mean = mean(rental_discount),
-            median = median(rental_discount),
-            standard_dev = sd(rental_discount),
-            min = min(rental_discount),
-            max = max(rental_discount),
-            n = n())
 
 d2 %>%
   group_by(year_booked, tr_bins) %>%
-  summarise(mean = mean(rental_discount),
+  summarise(mean_discount = mean(rental_discount),
             median = median(rental_discount),
             standard_dev = sd(rental_discount),
             min = min(rental_discount),
             max = max(rental_discount),
-            n = n())
-
-d2 %>%
-  group_by(year_booked, number_of_days) %>%
-  summarise(mean = mean(rental_discount),
-            median = median(rental_discount),
-            standard_dev = sd(rental_discount),
-            min = min(rental_discount),
-            max = max(rental_discount),
-            n = n())
+            n = n()) %>%
+  ggplot(aes(x = tr_bins, y = mean_discount, fill = year_booked)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  xlab("Total Revenue") + ylab("Mean Rental Discount")
 
 d2 %>%
   group_by(year_booked, space_count) %>%
-  summarise(mean = mean(rental_discount),
+  summarise(mean_discount = mean(rental_discount),
             median = median(rental_discount),
             standard_dev = sd(rental_discount),
             min = min(rental_discount),
             max = max(rental_discount),
-            n = n())
+            n = n()) %>%
+  ggplot(aes(x = space_count, y = mean_discount, fill = year_booked)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  xlab("Number of Spaces Booked") + ylab("Mean Rental Discount")
 
 d2 %>%
   group_by(year_booked, event_month) %>%
-  summarise(mean = mean(rental_discount),
+  summarise(mean_discount = mean(rental_discount),
             median = median(rental_discount),
             standard_dev = sd(rental_discount),
             min = min(rental_discount),
@@ -361,11 +346,14 @@ d2 %>%
                                          "May", "June", "July", "August",
                                          "September", "October", "November", 
                                          "December"))) %>%
-  arrange(event_month)
+  arrange(event_month) %>%
+  ggplot(aes(x = event_month, y = mean_discount, fill = year_booked)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  xlab("Event Month") + ylab("Mean Rental Discount")
 
 d2 %>%
   group_by(year_booked, month_booked) %>%
-  summarise(mean = mean(rental_discount),
+  summarise(mean_discount = mean(rental_discount),
             median = median(rental_discount),
             standard_dev = sd(rental_discount),
             min = min(rental_discount),
@@ -376,7 +364,10 @@ d2 %>%
                                           "May", "June", "July", "August",
                                           "September", "October", "November", 
                                           "December"))) %>%
-  arrange(month_booked)
+  arrange(month_booked) %>%
+  ggplot(aes(x = month_booked, y = mean_discount, fill = year_booked)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  xlab("Month Booked") + ylab("Mean Rental Discount")
 
 # Percentage Discount by year_booked and type, total event attendance, advanced booking,
 # total revenue, number of days of the event, number of spaces booked,
@@ -384,43 +375,19 @@ d2 %>%
 
 d2 %>%
   group_by(year_booked, type) %>%
-  summarise(mean = mean(percentage_discount),
+  summarise(mean_percentage_discount = mean(percentage_discount),
             median = median(percentage_discount),
             standard_dev = sd(percentage_discount),
             min = min(percentage_discount),
             max = max(percentage_discount),
-            n = n())
-
-d2 %>%
-  group_by(year_booked, tea_bins) %>%
-  summarise(mean = mean(percentage_discount),
-            median = median(percentage_discount),
-            standard_dev = sd(percentage_discount),
-            min = min(percentage_discount),
-            max = max(percentage_discount),
-            n = n())
-
-d2 %>%
-  group_by(year_booked, ab_bins) %>%
-  summarise(mean = mean(percentage_discount),
-            median = median(percentage_discount),
-            standard_dev = sd(percentage_discount),
-            min = min(percentage_discount),
-            max = max(percentage_discount),
-            n = n())
+            n = n()) %>%
+  ggplot(aes(x = type, y = mean_percentage_discount, fill = year_booked)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  xlab("Event Type") + ylab("Mean Percent Discount")
 
 d2 %>%
   group_by(year_booked, tr_bins) %>%
-  summarise(mean = mean(percentage_discount),
-            median = median(percentage_discount),
-            standard_dev = sd(percentage_discount),
-            min = min(percentage_discount),
-            max = max(percentage_discount),
-            n = n())
-
-d2 %>%
-  group_by(year_booked, number_of_days) %>%
-  summarise(mean = mean(percentage_discount),
+  summarise(mean_percentage_discount = mean(percentage_discount),
             median = median(percentage_discount),
             standard_dev = sd(percentage_discount),
             min = min(percentage_discount),
@@ -429,16 +396,19 @@ d2 %>%
 
 d2 %>%
   group_by(year_booked, space_count) %>%
-  summarise(mean = mean(percentage_discount),
+  summarise(mean_percentage_discount = mean(percentage_discount),
             median = median(percentage_discount),
             standard_dev = sd(percentage_discount),
             min = min(percentage_discount),
             max = max(percentage_discount),
-            n = n())
+            n = n()) %>%
+  ggplot(aes(x = space_count, y = mean_percentage_discount, fill = year_booked)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  xlab("Number of Spaces") + ylab("Mean Percent Discount")
 
 d2 %>%
   group_by(year_booked, event_month) %>%
-  summarise(mean = mean(percentage_discount),
+  summarise(mean_percentage_discount = mean(percentage_discount),
             median = median(percentage_discount),
             standard_dev = sd(percentage_discount),
             min = min(percentage_discount),
@@ -449,11 +419,14 @@ d2 %>%
                                          "May", "June", "July", "August",
                                          "September", "October", "November", 
                                          "December"))) %>%
-  arrange(event_month)
+  arrange(event_month) %>%
+  ggplot(aes(x = event_month, y = mean_percentage_discount, fill = year_booked)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  xlab("Event Month") + ylab("Mean Percent Discount")
 
-comparison_byYearandMonthBooked <- d2 %>%
+d2 %>%
   group_by(year_booked, month_booked) %>%
-  summarise(mean = mean(percentage_discount),
+  summarise(mean_percentage_discount = mean(percentage_discount),
             median = median(percentage_discount),
             standard_dev = sd(percentage_discount),
             min = min(percentage_discount),
@@ -464,7 +437,10 @@ comparison_byYearandMonthBooked <- d2 %>%
                                           "May", "June", "July", "August",
                                           "September", "October", "November", 
                                           "December"))) %>%
-  arrange(month_booked)
+  arrange(month_booked) %>%
+  ggplot(aes(x = month_booked, y = mean_percentage_discount, fill = year_booked)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  xlab("Month Booked") + ylab("Mean Percent Discount")
 
 
 
