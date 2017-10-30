@@ -156,6 +156,6 @@ ggplot(filter(sim, type == "Convention (CONV)"), aes(x = rev, y = new_rental_rev
     hjust = 0,
     label = c("Proposed model", "Actual revenue")
   )
-
+ 
 
 
