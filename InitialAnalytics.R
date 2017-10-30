@@ -5,17 +5,17 @@
 # Prepare Session
 #-----------------
 
-# Set Working Directory
-
-thisDir <- dirname(parent.frame(2)$ofile)
-setwd(thisDir)
-
 # Load Libraries
 
 library(tidyverse)
 library(lubridate)
 library(stringr)
 library(reshape2)
+library(here)
+
+# Set Working Directory
+
+setwd(here())
 
 # Read in Data
 
@@ -148,6 +148,10 @@ d2 <- d2 %>%
     )
   ) 
 
+# Create a subset of the type variable
+
+dtypesubset <- d2[!(d2$type == "Private/Social (SOC)"),]
+
 # Full Sample Stats
 #-------------------
 
@@ -172,7 +176,7 @@ d2 %>%
 
 # Function to use for summary stats
 
-summary_stats = function(df, category, discount) {
+summary_stats <- function(df, category, discount) {
   category <- enquo(category)
   discount <- enquo(discount)
   
@@ -188,7 +192,7 @@ summary_stats = function(df, category, discount) {
 
 # Function to use for summary stats that involve a month variable
 
-summary_stats_month = function(df, category, discount) {
+summary_stats_month <- function(df, category, discount) {
   category <- enquo(category)
   discount <- enquo(discount)
   
@@ -239,7 +243,7 @@ summary_by_monthbooked <- summary_stats_month(d2, month_booked, percentage_disco
 
 # Function to create barcharts
 
-create_barchart = function(df, category, y) {
+create_barchart <- function(df, category, y) {
   df %>%
   ggplot(aes(x = category, y = y)) +
     geom_bar(stat = "identity") +
@@ -248,7 +252,7 @@ create_barchart = function(df, category, y) {
 
 # Function to create month variable barcharts
 
-create_month_barchart = function(df, category, y) {
+create_month_barchart <- function(df, category, y) {
   df %>%
   mutate(category = factor(category,
                            levels = c("January", "February", "March", "April",
@@ -263,7 +267,7 @@ create_month_barchart = function(df, category, y) {
 
 # Barcharts
 
-create_barchart(summary_by_type, summary_by_type$type, summary_by_type$Mean)
+bartype <- create_barchart(summary_by_type, summary_by_type$type, summary_by_type$Mean)
 
 create_barchart(summary_by_teabins, summary_by_teabins$tea_bins, summary_by_teabins$Mean)
 
@@ -406,6 +410,8 @@ d2 %>%
   geom_bar(stat = "identity", position = position_dodge()) +
   xlab("Number of Spaces") + ylab("Mean Percent Discount")
 
+#----------------------------------------------------------------------
+
 d2 %>%
   group_by(year_booked, event_month) %>%
   summarise(mean_percentage_discount = mean(percentage_discount),
@@ -423,6 +429,26 @@ d2 %>%
   ggplot(aes(x = event_month, y = mean_percentage_discount, fill = year_booked)) +
   geom_bar(stat = "identity", position = position_dodge()) +
   xlab("Event Month") + ylab("Mean Percent Discount")
+
+dtypesubset %>%
+  group_by(year_booked, event_month) %>%
+  summarise(mean_percentage_discount = mean(percentage_discount),
+            median = median(percentage_discount),
+            standard_dev = sd(percentage_discount),
+            min = min(percentage_discount),
+            max = max(percentage_discount),
+            n = n()) %>%
+  mutate(event_month = factor(event_month,
+                              levels = c("January", "February", "March", "April",
+                                         "May", "June", "July", "August",
+                                         "September", "October", "November", 
+                                         "December"))) %>%
+  arrange(event_month) %>%
+  ggplot(aes(x = event_month, y = mean_percentage_discount, fill = year_booked)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  xlab("Event Month") + ylab("Mean Percent Discount")
+
+#--------------------------------------------------------------------------
 
 d2 %>%
   group_by(year_booked, month_booked) %>%
@@ -442,6 +468,82 @@ d2 %>%
   geom_bar(stat = "identity", position = position_dodge()) +
   xlab("Month Booked") + ylab("Mean Percent Discount")
 
+#--------------------------------------------
 
+# Total event counts by type per month
 
+event_counts <- d2 %>%
+  group_by(type, event_month) %>%
+  summarise(number_of_events = n()) %>%
+  mutate(event_month = factor(event_month,
+                               levels = c("January", "February", "March", "April",
+                                          "May", "June", "July", "August",
+                                          "September", "October", "November", 
+                                          "December"))) %>%
+  arrange(event_month)
+
+# Scatterplots
+
+# Advanced Booking
+
+d2 %>%
+  group_by(advance_booking, type) %>%
+  summarise(mean_percentage_discount = mean(percentage_discount),
+            median = median(percentage_discount),
+            standard_dev = sd(percentage_discount),
+            min = min(percentage_discount),
+            max = max(percentage_discount),
+            n = n()) %>%
+  ggplot(aes(x = advance_booking, y = mean_percentage_discount)) +
+  geom_point(aes(colour=factor(type)), stat = "identity")
+
+dtypesubset %>%
+  group_by(advance_booking, type) %>%
+  summarise(mean_percentage_discount = mean(percentage_discount),
+            median = median(percentage_discount),
+            standard_dev = sd(percentage_discount),
+            min = min(percentage_discount),
+            max = max(percentage_discount),
+            n = n()) %>%
+  ggplot(aes(x = advance_booking, y = mean_percentage_discount)) +
+  geom_point(aes(colour=factor(type)), stat = "identity")
+
+# Total Event Attendance
+
+d2 %>%
+  group_by(total_event_attendance, type) %>%
+  summarise(mean_percentage_discount = mean(percentage_discount),
+            median = median(percentage_discount),
+            standard_dev = sd(percentage_discount),
+            min = min(percentage_discount),
+            max = max(percentage_discount),
+            n = n()) %>%
+  ggplot(aes(x = total_event_attendance, y = mean_percentage_discount)) +
+  geom_point(aes(colour=factor(type)), stat = "identity")
+
+# Total Revenue
+
+dtypesubset %>%
+  group_by(total_revenue, type) %>%
+  summarise(mean_percentage_discount = mean(percentage_discount),
+            median = median(percentage_discount),
+            standard_dev = sd(percentage_discount),
+            min = min(percentage_discount),
+            max = max(percentage_discount),
+            n = n()) %>%
+  ggplot(aes(x = total_revenue, y = mean_percentage_discount)) +
+  geom_point(aes(colour=factor(type)), stat = "identity")
+
+# Rental Revenue
+
+dtypesubset %>%
+  group_by(rental_revenue, type) %>%
+  summarise(mean_percentage_discount = mean(percentage_discount),
+            median = median(percentage_discount),
+            standard_dev = sd(percentage_discount),
+            min = min(percentage_discount),
+            max = max(percentage_discount),
+            n = n()) %>%
+  ggplot(aes(x = rental_revenue, y = mean_percentage_discount)) +
+  geom_point(aes(colour=factor(type)), stat = "identity")
 
