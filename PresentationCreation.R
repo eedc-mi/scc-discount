@@ -12,6 +12,7 @@ library(lubridate)
 library(stringr)
 library(reshape2)
 library(officer)
+library(flextable)
 library(knitr)
 library(rvg)
 library(here)
@@ -163,11 +164,11 @@ summary_stats <- function(df, category, discount) {
   
   df %>%
     group_by(!!category) %>%
-    summarize(Mean = mean(!!discount),
-              Median = median(!!discount),
-              Standard_Deviation = sd(!!discount),
-              Min = min(!!discount),
-              Max = max(!!discount),
+    summarize(Mean = round(mean(!!discount), digits = 3),
+              Median = round(median(!!discount), digits = 3),
+              Standard_Deviation = round(sd(!!discount), digits = 3),
+              Min = round(min(!!discount), digits = 3),
+              Max = round(max(!!discount), digits = 3),
               n = n())
 }
 
@@ -179,11 +180,11 @@ summary_stats_month <- function(df, category, discount) {
   
   df %>%
     group_by(!!category) %>%
-    summarize(Mean = mean(!!discount),
-              Median = median(!!discount),
-              Standard_Deviation = sd(!!discount),
-              Min = min(!!discount),
-              Max = max(!!discount),
+    summarize(Mean = round(mean(!!discount), digits = 3),
+              Median = round(median(!!discount), digits = 3),
+              Standard_Deviation = round(sd(!!discount), digits = 3),
+              Min = round(min(!!discount), digits = 3),
+              Max = round(max(!!discount), digits = 3),
               n = n()) %>%
     mutate(category = factor(!!!category,
                              levels = c("January", "February", "March", "April",
@@ -227,7 +228,22 @@ summary_by_monthbooked <- summary_stats_month(d2, month_booked, percentage_disco
 create_barchart <- function(df, category, y) {
   df %>%
     ggplot(aes(x = category, y = y)) +
-    geom_bar(stat = "identity") +
+    geom_bar(stat = "identity", fill = "chartreuse3") +
+    xlab(colnames(df[1])) + ylab(paste(colnames(df[2]), " Percent Discount"))
+}
+
+# Function to create month variable barcharts
+
+create_month_barchart <- function(df, category, y) {
+  df %>%
+    mutate(category = factor(category,
+                             levels = c("January", "February", "March", "April",
+                                        "May", "June", "July", "August",
+                                        "September", "October", "November", 
+                                        "December"))) %>%
+    arrange(category) %>%
+    ggplot(aes(x = category, y = y)) +
+    geom_bar(stat = "identity", fill = "chartreuse3") +
     xlab(colnames(df[1])) + ylab(paste(colnames(df[2]), " Percent Discount"))
 }
 
@@ -237,13 +253,64 @@ create_barchart <- function(df, category, y) {
 
 # Set Captions
 
-intro <- ""
+intro <- "The following tables and charts show rental discount patterns over the past few years in relation to different variables."
 cap1 <- "Percentage Discount Summary Statistics by Event Type"
 cap2 <- "Percentage Discount Summary Statistics by Year Booked"
 cap3 <- "Mean Percentage Discount by Event Type"
 cap4 <- "Percentage Discount Summary Statistics by Event Month"
 cap5 <- "Percentage Discount Summary Statistics by Month Booked"
 cap6 <- "Mean Percentage Discount by Number of Days Booked in Advance"
+
+# Set font styles
+
+text_prop <- fp_text(font.size = 30)
+subtext_prop <- fp_text(font.size = 20)
+
+# Create flextables from summary tables to ensure they will fit on slides
+
+ft_type <- flextable(summary_by_type) %>%
+  fontsize(part = "header", size = 16) %>%
+  bold(part = "header") %>%
+  align(align = "center", part = "all") %>%
+  padding(padding = 3, part = "all") %>%
+  bg(bg = "chartreuse3", part = "header") %>%
+  color(color = "white", part = "header") %>%
+  color(color = "darkgreen", part = "body") %>%
+  border(border = fp_border(color = "goldenrod1"), part = "all")
+ft_type <- autofit(ft_type)
+
+ft_yearbooked <- flextable(summary_by_yearbooked) %>%
+  fontsize(part = "header", size = 16) %>%
+  bold(part = "header") %>%
+  align(align = "center", part = "all") %>%
+  padding(padding = 3, part = "all") %>%
+  bg(bg = "chartreuse3", part = "header") %>%
+  color(color = "white", part = "header") %>%
+  color(color = "darkgreen", part = "body") %>%
+  border(border = fp_border(color = "goldenrod1"), part = "all")
+ft_yearbooked <- autofit(ft_yearbooked)
+
+ft_eventmonth <- flextable(summary_by_eventmonth) %>%
+  fontsize(part = "header", size = 16) %>%
+  bold(part = "header") %>%
+  align(align = "center", part = "all") %>%
+  padding(padding = 3, part = "all") %>%
+  bg(bg = "chartreuse3", part = "header") %>%
+  color(color = "white", part = "header") %>%
+  color(color = "darkgreen", part = "body") %>%
+  border(border = fp_border(color = "goldenrod1"), part = "all")
+ft_eventmonth <- autofit(ft_eventmonth)
+
+ft_monthbooked <- flextable(summary_by_monthbooked) %>%
+  fontsize(part = "header", size = 16) %>%
+  bold(part = "header") %>%
+  align(align = "center", part = "all") %>%
+  padding(padding = 3, part = "all") %>%
+  bg(bg = "chartreuse3", part = "header") %>%
+  color(color = "white", part = "header") %>%
+  color(color = "darkgreen", part = "body") %>%
+  border(border = fp_border(color = "goldenrod1"), part = "all")
+ft_monthbooked <- autofit(ft_monthbooked)
 
 # Build Slide Deck
 
@@ -252,7 +319,7 @@ pres <- read_pptx()
 pres <- pres %>%
   # Title Slide
   add_slide(layout = "Title Slide", master = "Office Theme") %>%
-    ph_with_text(type = "ctrTitle", str = "SCC Room Rental Discount History") %>% 
+    ph_with_text(type = "ctrTitle", str = "SCC Room Rental Discount Historical Patterns") %>% 
     ph_with_text(type = "subTitle", str = "Exploratory Analytics") %>%
   
   # Summary Slide
@@ -263,39 +330,61 @@ pres <- pres %>%
   
   # Slide with Chart 1
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_with_text(type = "title", index = 1, str = cap1) %>% 
-    ph_with_table(type = "body", value = head(summary_by_type)) %>%
+    ph_empty(type = "title") %>%
+    ph_add_par() %>%
+    ph_add_text(str = cap1, type = "title", style = text_prop) %>% 
+    ph_with_flextable(value = ft_type, type = "body", index = 1) %>%
     ph_with_text(type = "sldNum", str = "2" ) %>%
   
   # Slide with Chart 2
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_with_text(type = "title", index = 1, str = cap2) %>% 
-    ph_with_table(type = "body", value = head(summary_by_yearbooked)) %>%
+    ph_empty(type = "title") %>%
+    ph_add_par() %>%
+    ph_add_text(str = cap2, type = "title", style = text_prop) %>% 
+    ph_with_flextable(value = ft_yearbooked, type = "body", index = 1) %>%
     ph_with_text(type = "sldNum", str = "3" ) %>%
     
   # Slide with Barchart (Event Type)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_with_text(type = "title", index = 1, str = cap3) %>% 
+    ph_empty(type = "title") %>%
+    ph_add_par() %>%
+    ph_add_text(str = cap3, type = "title", style = text_prop) %>% 
     ph_with_vg(code = print(create_barchart(summary_by_type,
                                             summary_by_type$type,
                                             summary_by_type$Mean)), type = "body") %>%
     ph_with_text(type = "sldNum", str = "4" ) %>%
-    
+  
+  # Slide with Barchart (Event Month)
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+    ph_empty(type = "title") %>%
+    ph_add_par() %>%
+    ph_add_text(str = cap3, type = "title", style = text_prop) %>% 
+    ph_with_vg(code = print(create_month_barchart(summary_by_eventmonth,
+                                                  summary_by_eventmonth$event_month,
+                                                  summary_by_eventmonth$Mean)), type = "body") %>%
+  ph_with_text(type = "sldNum", str = "5" ) %>%
+
   # Slide with Chart 4
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_with_text(type = "title", index = 1, str = cap4) %>% 
-    ph_with_table(type = "body", index = 1, value = head(summary_by_eventmonth)) %>%
-    ph_with_text(type = "sldNum", str = "5" ) %>%
+    ph_empty(type = "title") %>%
+    ph_add_par() %>%
+    ph_add_text(str = cap4, type = "title", style = text_prop) %>% 
+    ph_with_flextable(value = ft_eventmonth, type = "body", index = 1) %>%
+    ph_with_text(type = "sldNum", str = "6" ) %>%
     
   # Slide with Chart 5
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_with_text(type = "title", index = 1, str = cap5) %>% 
-    ph_with_table(type = "body", index = 1, value = head(summary_by_monthbooked)) %>%
-    ph_with_text(type = "sldNum", str = "6" ) %>%
+    ph_empty(type = "title") %>%
+    ph_add_par() %>%
+    ph_add_text(str = cap5, type = "title", style = text_prop) %>% 
+    ph_with_flextable(value = ft_monthbooked, type = "body", index = 1) %>%
+    ph_with_text(type = "sldNum", str = "7" ) %>%
 
   # Slide with Chart 6
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_with_text(type = "title", index = 1, str = cap6) %>% 
+    ph_empty(type = "title") %>%
+    ph_add_par() %>%
+    ph_add_text(str = cap6, type = "title", style = text_prop) %>% 
     ph_with_vg(code = print(d2 %>%
                               group_by(advance_booking, type) %>%
                               summarise(mean_percentage_discount = mean(percentage_discount),
@@ -307,7 +396,7 @@ pres <- pres %>%
                               ggplot(aes(x = advance_booking, y = mean_percentage_discount)) +
                               geom_point(aes(colour=factor(type)), stat = "identity")),
                type = "body") %>%
-    ph_with_text(type = "sldNum", str = "7" )
+    ph_with_text(type = "sldNum", str = "8" )
     
   # Save Powerpoint
   print(pres, target = "SCC Room Rental Discount History.pptx") %>%
