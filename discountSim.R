@@ -42,8 +42,8 @@ applyDiscount <- function(dataMatrix, discountMatrix) {
   dataMatrix[, c("event_id", "new_discount")]
 }
 
-simStartConditions <- function(data, minRevSeq, minDiscountSeq, fbStep, dStep, numSteps) {
-  grid <- expand.grid(rev = minRevSeq, disc = minDiscountSeq)
+simStartConditions <- function(data, fbStartSeq, dStartSeq, fbStep, dStep, numSteps) {
+  grid <- expand.grid(rev = fbStartSeq, disc = dStartSeq)
   
   dMatrixList <- mapply(
     makeDiscountMatrix, 
@@ -111,7 +111,7 @@ proposedDiscResult <- as.tibble(
     data.matrix(
       tib %>% select(event_id, rental_revenue, food_beverage_revenue)
     ), 
-    proposedDiscountTable
+    proposedDiscountMatrix
   )
 )
 
@@ -133,9 +133,9 @@ sim <- simStartConditions(tib, minFbRev, minDisc, 30000, -0.1, 5)
 
 stepSeq <- seq(5000, 50000, by = 1000)
 discSeq <- seq(-.05, -.30, by = -0.05)
-simStep <- simStepConditions(tib, 30000, -.10, fbStepSeq, discStepSeq, 5)
+simStep <- simStepConditions(tib, 30000, -.10, stepSeq, discSeq, 5)
 
-ggplot(filter(sim, type == "Convention (CONV)"), aes(x = rev, y = new_rental_revenue, color = factor(disc))) +
+ggplot(sim %>% filter(type == "Convention (CONV)"), aes(x = rev, y = new_rental_revenue, color = factor(disc))) +
   geom_line() + 
   geom_hline(
     yintercept = c(
@@ -144,7 +144,13 @@ ggplot(filter(sim, type == "Convention (CONV)"), aes(x = rev, y = new_rental_rev
     ),
     linetype = "dashed"
   ) +
-  ggtitle("Simulation results") +
+  labs(
+    x = "Minimum food and beverage revenue",
+    y = "Simulated revenue",
+    color = "Starting\nrental discount",
+    title = "Effect of different discount conditions on historical rental revenue",
+    subtitle = "Convention rental revenue only, , Jan 2015 - Jun 2017 events"
+  ) +
   annotate(
     "text", 
     c(min(sim$rev), min(sim$rev)),
@@ -155,7 +161,69 @@ ggplot(filter(sim, type == "Convention (CONV)"), aes(x = rev, y = new_rental_rev
     vjust = -0.5,
     hjust = 0,
     label = c("Proposed model", "Actual revenue")
-  )
- 
+  ) + 
+  scale_x_continuous(labels = scales::comma)
+
+ggplot(
+  sim %>% 
+    group_by(rev, disc) %>% 
+    summarize(new_rental_revenue = sum(new_rental_revenue)), 
+  aes(x = rev, y = new_rental_revenue, color = factor(disc))) +
+  geom_line() + 
+  geom_hline(
+    yintercept = c(
+      first(proposedDiscResult %>% summarize(sum(new_rental_revenue))),
+      first(proposedDiscResult %>% summarize(sum(old_rental_revenue)))
+    ),
+    linetype = "dashed"
+  ) + 
+  labs(
+    x = "Minimum food and beverage revenue",
+    y = "Simulated revenue",
+    color = "Starting\nrental discount",
+    title = "Effect of different discount conditions on historical rental revenue",
+    subtitle = "All rental revenue, Jan 2015 - Jun 2017 events"
+  ) +
+  annotate(
+    "text", 
+    c(min(sim$rev), min(sim$rev)),
+    c(
+      first(proposedDiscResult %>% summarize(sum(new_rental_revenue))),
+      first(proposedDiscResult %>% summarize(sum(old_rental_revenue)))
+    ),
+    vjust = -0.5,
+    hjust = 0,
+    label = c("Proposed model", "Actual revenue")
+  ) + 
+  scale_x_continuous(labels = scales::comma)
+
+ggplot(tib, aes(food_beverage_revenue)) +
+  geom_histogram() +
+  geom_vline(xintercept = proposedDiscountMatrix[2, "fbRev"], linetype = "dashed") +
+  scale_x_continuous(labels = scales::comma)
+
+ggplot(
+  rbind(
+    tib %>% mutate(type = "All"),
+    tib %>% filter(type == "Convention (CONV)")
+  ), 
+  aes(food_beverage_revenue, color = type)) +
+  stat_ecdf() +
+  geom_vline(xintercept = proposedDiscountMatrix[2, "fbRev"], linetype = "dashed") +
+  annotate(
+    "text",
+    c(proposedDiscountMatrix[2, "fbRev"], proposedDiscountMatrix[2, "fbRev"]),
+    c(0.25, 0.25),
+    hjust = c(1.1, -0.25),
+    label = c("No discount", "Discount")
+  ) +
+  labs(
+    x = "Food and beverage revenue",
+    y = "Fraction of events",
+    color = "Event type",
+    title = "Under the proposed model, > 75% of conventions would not have received a discount",
+    subtitle = "Fraction of Jan 2015 - Jun 2017 events with given amounts of food and beverage revenue"
+  ) +
+  scale_x_continuous(limits = c(0, 200000), labels = scales::comma)
 
 
