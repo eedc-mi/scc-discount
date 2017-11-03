@@ -240,6 +240,8 @@ summary_by_usesroom <- summary_stats(d2, uses_room, percentage_discount)
 
 summary_by_yearbooked <- summary_stats(d2, year_booked, percentage_discount)
 
+summary_by_foodbeveragerevenue <- summary_stats(d2, food_beverage_revenue, percentage_discount)
+
 # Summary stats for month variables
 
 summary_by_eventmonth <- summary_stats_month(d2, event_month, percentage_discount)
@@ -307,6 +309,7 @@ cap9 <- "Conventions and Consumer Tradeshows appear to be the only types that sh
 cap10 <- "In most cases, 2016 appears to have had higher average discounting than 2015. Note that there are multiple months that have passed in 2017 that appear to not have discounted any events."
 cap11 <- "This graph shows the same variables as the previous, but excludes all Private/Social events."
 cap12 <- "Almost all event months show average discount rates between 20% and 50%, December is the only outlier"
+cap13 <- "The only event type that has potential correlation in terms of food and beverage revenue affecting average percentage discount is Conventions. However, even this event type shows minimal trend."
 
 # Set font styles
 
@@ -623,7 +626,29 @@ pres <- pres %>%
                               ggtitle("Mean Percentage Discount by Event Month, Grouped by Year Booked") +
                               theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
                type = "body") %>%
-    ph_with_text(type = "sldNum", str = "14" )
+    ph_with_text(type = "sldNum", str = "14" ) %>%
+
+  # Slide with Scatterplot (Food/Beverage Revenue and Type)
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+    ph_empty(type = "title") %>%
+    ph_add_par() %>%
+    ph_add_text(str = cap13, type = "title", style = text_prop) %>% 
+    ph_with_vg(code = print(d2 %>%
+                              group_by(food_beverage_revenue, type) %>%
+                              summarise(mean_percentage_discount = mean(percentage_discount),
+                                        median = median(percentage_discount),
+                                        standard_dev = sd(percentage_discount),
+                                        min = min(percentage_discount),
+                                        max = max(percentage_discount),
+                                        n = n()) %>%
+                              ggplot(aes(x = food_beverage_revenue, y = mean_percentage_discount)) +
+                              geom_point(aes(colour=factor(type)), stat = "identity") +
+                              theme(legend.position = "top", legend.direction = "horizontal") +
+                              labs(color = "") +
+                              ggtitle("Mean Percentage Discount by Food/Beverage Revenue, Grouped by Event Type") +
+                              theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
+              type = "body") %>%
+    ph_with_text(type = "sldNum", str = "15" )
     
   # Save Powerpoint
   print(pres, target = "SCC Room Rental Discount History.pptx") %>%
