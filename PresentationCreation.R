@@ -1,7 +1,8 @@
-#-----------------------
+#-----------------------------------------------------------------------------------
 # Presentation Creation
-#-----------------------
+#-----------------------------------------------------------------------------------
 
+#-----------------
 # Prepare Session
 #-----------------
 
@@ -156,6 +157,11 @@ d2 <- d2 %>%
 
 dtypesubset <- d2[!(d2$type == "Private/Social (SOC)"),]
 
+# Conventions only subset
+
+convention_stats <- subset(d2, type == "Convention (CONV)")
+
+#-------------------
 # Full Sample Stats
 #-------------------
 
@@ -248,6 +254,8 @@ summary_by_eventmonth <- summary_stats_month(d2, event_month, percentage_discoun
 
 summary_by_monthbooked <- summary_stats_month(d2, month_booked, percentage_discount)
 
+conventionsummary_by_eventmonth <- summary_stats_month(convention_stats, event_month, percentage_discount)
+
 # Total event counts by type per month
 
 event_counts <- d2 %>%
@@ -259,6 +267,8 @@ event_counts <- d2 %>%
                                          "September", "October", "November", 
                                          "December"))) %>%
   arrange(event_month)
+
+# Total event counts by type for December
 
 december_counts <- subset(event_counts, event_month == "December")
 
@@ -290,32 +300,33 @@ create_month_barchart <- function(df, category, y) {
     xlab(colnames(df[1])) + ylab(paste(colnames(df[2]), " Percent Discount"))
 }
 
-#--------------------------------------
+#---------------------
 # Powerpoint Creation
-#--------------------------------------
+#---------------------
 
 # Set Captions
 
-intro <- "The following tables and charts show rental discount patterns over the past few years in relation to different variables."
+intro <- "The following tables and charts show rental discount patterns over the past few years in relation to different variables. From initial analyses, there are not many conclusive patterns for discounting room rentals. Instead, a great deal of variation exists between discounts, regardless of which variable is being observed."
 cap1 <- "Private/Social events are discounted much more than any other event type; many are discounted 100%."
 cap2 <- "Percentage discount varies each year with 2016 showing the highest average and median discount. It is important to note that 2017 has far fewer events recorded than the years previous because it has not reached year end."
 cap3 <- "This is potentially due to the majority of events during this month being Private/Social events."
 cap4 <- "December events appear to be discounted the most."
 cap5 <- "Events booked in January, April, August, October, and December have median discount rates of 0%. The highest number of events booked in a single month is January, with 118 more events than the next highest month March."
-cap6 <- "The number of days an event was booked in advance had some influence on the discount, but only for certain event types."
+cap6 <- "The number of days an event was booked in advance had very little influence if any on the discount."
 cap7 <- "Dollar value summary statistics may not be as useful when looking at patterns due to the variety of event sizes, therefore most further analysis was conducted with discount percentages."
 cap8 <- "Discount percentages vary by event type when grouped by the year the event was booked as well."
-cap9 <- "Conventions and Consumer Tradeshows appear to be the only types that show correlation between rental revenue and mean percentage discount. Note, Private/Social events were discluded from this graph."
+cap9 <- "Conventions and Consumer Tradeshows appear to be the only types that show correlation between rental revenue and mean percentage discount. Note, Private/Social events were excluded from this graph."
 cap10 <- "In most cases, 2016 appears to have had higher average discounting than 2015. Note that there are multiple months that have passed in 2017 that appear to not have discounted any events."
 cap11 <- "This graph shows the same variables as the previous, but excludes all Private/Social events."
-cap12 <- "Almost all event months show average discount rates between 20% and 50%, December is the only outlier"
+cap12 <- "Almost all event months show average discount rates between 20% and 50%, December is the only outlier."
 cap13 <- "The only event type that has potential correlation in terms of food and beverage revenue affecting average percentage discount is Conventions. However, even this event type shows minimal trend."
+cap14 <- "This chart shows average percentage discounts for just Conventions. February conventions are discounted the most out of all months, and there are no conventions held in August or December to show."
 
-# Set font styles
+# Set font style
 
 text_prop <- fp_text(font.size = 16)
 
-# Create flextables from summary tables to ensure they will fit on slides
+# Create flextables from summary tables to ensure they will fit on slides properly
 
 ft_discount <- flextable(summary_discount) %>%
   add_header(top = TRUE, Discount = "Discount Summary Statistics",
@@ -328,7 +339,7 @@ ft_discount <- flextable(summary_discount) %>%
   bg(bg = "chartreuse3", part = "header") %>%
   color(color = "white", part = "header") %>%
   color(color = "darkgreen", part = "body") %>%
-  border(border = fp_border(color = "goldenrod1"), part = "all") %>%
+  border(border = fp_border(color = "darkblue"), part = "all") %>%
   autofit() %>%
   width(j = 1, width = 3.25)
 
@@ -343,7 +354,7 @@ ft_type <- flextable(summary_by_type) %>%
   bg(bg = "chartreuse3", part = "header") %>%
   color(color = "white", part = "header") %>%
   color(color = "darkgreen", part = "body") %>%
-  border(border = fp_border(color = "goldenrod1"), part = "all") %>%
+  border(border = fp_border(color = "darkblue"), part = "all") %>%
   autofit() %>%
   width(j = 1, width = 3.25)
 
@@ -358,7 +369,7 @@ ft_yearbooked <- flextable(summary_by_yearbooked) %>%
   bg(bg = "chartreuse3", part = "header") %>%
   color(color = "white", part = "header") %>%
   color(color = "darkgreen", part = "body") %>%
-  border(border = fp_border(color = "goldenrod1"), part = "all") %>%
+  border(border = fp_border(color = "darkblue"), part = "all") %>%
   autofit() %>%
   width(j = 1, width = 3.25)
   
@@ -373,7 +384,7 @@ ft_eventmonth <- flextable(summary_by_eventmonth) %>%
   bg(bg = "chartreuse3", part = "header") %>%
   color(color = "white", part = "header") %>%
   color(color = "darkgreen", part = "body") %>%
-  border(border = fp_border(color = "goldenrod1"), part = "all") %>%
+  border(border = fp_border(color = "darkblue"), part = "all") %>%
   autofit() %>%
   width(j = 1, width = 3.25)
 
@@ -388,7 +399,7 @@ ft_monthbooked <- flextable(summary_by_monthbooked) %>%
   bg(bg = "chartreuse3", part = "header") %>%
   color(color = "white", part = "header") %>%
   color(color = "darkgreen", part = "body") %>%
-  border(border = fp_border(color = "goldenrod1"), part = "all") %>%
+  border(border = fp_border(color = "darkblue"), part = "all") %>%
   autofit() %>%
   width(j = 1, width = 3.25)
 
@@ -403,7 +414,7 @@ ft_decembercounts <- flextable(december_counts) %>%
   bg(bg = "chartreuse3", part = "header") %>%
   color(color = "white", part = "header") %>%
   color(color = "darkgreen", part = "body") %>%
-  border(border = fp_border(color = "goldenrod1"), part = "all") %>%
+  border(border = fp_border(color = "darkblue"), part = "all") %>%
   autofit() %>%
   width(j = 1, width = 3) %>%
   width(j = 2, width = 3) %>%
@@ -476,6 +487,16 @@ pres <- pres %>%
                                                   summary_by_eventmonth$event_month,
                                                   summary_by_eventmonth$Mean)), type = "body") %>%
     ph_with_text(type = "sldNum", str = "7" ) %>%
+  
+  # Slide with Barchart (Event Month - Just Conventions)
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+    ph_empty(type = "title") %>%
+    ph_add_par() %>%
+    ph_add_text(str = cap14, type = "title", style = text_prop) %>% 
+    ph_with_vg(code = print(create_month_barchart(conventionsummary_by_eventmonth,
+                                                  conventionsummary_by_eventmonth$event_month,
+                                                  conventionsummary_by_eventmonth$Mean)), type = "body") %>%
+    ph_with_text(type = "sldNum", str = "7" ) %>%
 
   # Slide with December Counts Table
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
@@ -485,14 +506,6 @@ pres <- pres %>%
     ph_with_flextable(value = ft_decembercounts, type = "body", index = 1) %>%
     ph_with_text(type = "sldNum", str = "8" ) %>%
     
-  # Slide with Month Booked Table
-  add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_empty(type = "title") %>%
-    ph_add_par() %>%
-    ph_add_text(str = cap5, type = "title", style = text_prop) %>% 
-    ph_with_flextable(value = ft_monthbooked, type = "body", index = 1) %>%
-    ph_with_text(type = "sldNum", str = "9" ) %>%
-
   # Slide with Scatterplot (Advanced Booking and Type)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
     ph_empty(type = "title") %>%
@@ -500,17 +513,11 @@ pres <- pres %>%
     ph_add_text(str = cap6, type = "title", style = text_prop) %>% 
     ph_with_vg(code = print(d2 %>%
                               group_by(advance_booking, type) %>%
-                              summarise(mean_percentage_discount = mean(percentage_discount),
-                                        median = median(percentage_discount),
-                                        standard_dev = sd(percentage_discount),
-                                        min = min(percentage_discount),
-                                        max = max(percentage_discount),
-                                        n = n()) %>%
-                              ggplot(aes(x = advance_booking, y = mean_percentage_discount)) +
+                              ggplot(aes(x = advance_booking, y = percentage_discount)) +
                               geom_point(aes(colour=factor(type)), stat = "identity") +
                               theme(legend.position = "top", legend.direction = "horizontal") +
                               labs(color = "") +
-                              ggtitle("Mean Percentage Discount by Number of Days Booked in Advance, Grouped by Event Type") +
+                              ggtitle("Percentage Discount by Number of Days Booked in Advance, Grouped by Event Type") +
                               theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
                 type = "body") %>%
     ph_with_text(type = "sldNum", str = "10" ) %>%
@@ -546,17 +553,11 @@ pres <- pres %>%
     ph_add_text(str = cap9, type = "title", style = text_prop) %>% 
     ph_with_vg(code = print(dtypesubset %>%
                               group_by(rental_revenue, type) %>%
-                              summarise(mean_percentage_discount = mean(percentage_discount),
-                                        median = median(percentage_discount),
-                                        standard_dev = sd(percentage_discount),
-                                        min = min(percentage_discount),
-                                        max = max(percentage_discount),
-                                        n = n()) %>%
-                              ggplot(aes(x = rental_revenue, y = mean_percentage_discount)) +
+                              ggplot(aes(x = rental_revenue, y = percentage_discount)) +
                               geom_point(aes(colour=factor(type)), stat = "identity") +
                               theme(legend.position = "top", legend.direction = "horizontal") +
                               labs(color = "") +
-                              ggtitle("Mean Percentage Discount by Rental Revenue, Grouped by Event Type") +
+                              ggtitle("Percentage Discount by Rental Revenue, Grouped by Event Type") +
                               theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
               type = "body") %>%
     ph_with_text(type = "sldNum", str = "12" ) %>%
@@ -635,17 +636,11 @@ pres <- pres %>%
     ph_add_text(str = cap13, type = "title", style = text_prop) %>% 
     ph_with_vg(code = print(d2 %>%
                               group_by(food_beverage_revenue, type) %>%
-                              summarise(mean_percentage_discount = mean(percentage_discount),
-                                        median = median(percentage_discount),
-                                        standard_dev = sd(percentage_discount),
-                                        min = min(percentage_discount),
-                                        max = max(percentage_discount),
-                                        n = n()) %>%
-                              ggplot(aes(x = food_beverage_revenue, y = mean_percentage_discount)) +
+                              ggplot(aes(x = food_beverage_revenue, y = percentage_discount)) +
                               geom_point(aes(colour=factor(type)), stat = "identity") +
                               theme(legend.position = "top", legend.direction = "horizontal") +
                               labs(color = "") +
-                              ggtitle("Mean Percentage Discount by Food/Beverage Revenue, Grouped by Event Type") +
+                              ggtitle("Percentage Discount by Food/Beverage Revenue, Grouped by Event Type") +
                               theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
               type = "body") %>%
     ph_with_text(type = "sldNum", str = "15" )
