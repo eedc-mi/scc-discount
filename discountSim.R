@@ -169,6 +169,7 @@ proposedResultOff <- proposedOffPeak %>%
 minFbRev <- seq(10000, 100000, by = 1000)
 minDisc <- seq(-0.1, -.30, by = -0.05)
 sim <- simStartConditions(tib, minFbRev, minDisc, 30000, -0.1, 5, offPeakMonths)
+simAll <- simStartConditions(tib, minFbRev, minDisc, 30000, -0.1, 5, allMonths)
 
 stepSeq <- seq(5000, 50000, by = 1000)
 discSeq <- seq(-.05, -.30, by = -0.05)
@@ -176,7 +177,7 @@ simStep <- simStepConditions(tib, 30000, -.10, stepSeq, discSeq, 5, offPeakMonth
 
 # Conventions only, all months
 convSimPlotAll <- ggplot(
-  sim %>% filter(type == "Convention (CONV)"), 
+  simAll %>% filter(type == "Convention (CONV)"), 
   aes(x = rev, y = new_rental_revenue, color = factor(disc))) +
   geom_line() + 
   geom_hline(
@@ -325,7 +326,7 @@ pres <- read_pptx("SCC Room Rental Discount History.pptx")
 
 pres <- pres %>%
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-  ph_with_vg(code = print(convSimPlot), type = "body")
+  ph_with_vg(code = print(convSimPlotOff), type = "body")
 
 print(pres, target = "SCC Room Rental Discount History.pptx")
 
