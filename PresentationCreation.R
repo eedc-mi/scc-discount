@@ -306,7 +306,7 @@ create_month_barchart <- function(df, category, y) {
 
 # Set Captions
 
-intro <- "The following tables and charts show rental discount patterns over the past few years in relation to different variables. From initial analyses, there are not many conclusive patterns for discounting room rentals. Instead, a great deal of variation exists between discounts, regardless of which variable is being observed."
+intro <- "The following tables and charts show rental discount patterns over the past few years in relation to different variables. From initial analyses, there are not many conclusive patterns for discounting room rentals. Instead, a great deal of variation exists between discounts, regardless of which variable is being observed. One strong trend does exist with Conventions being discounted more heavily in January and February."
 cap1 <- "Private/Social events are discounted much more than any other event type; many are discounted 100%."
 cap2 <- "Percentage discount varies each year with 2016 showing the highest average and median discount. It is important to note that 2017 has far fewer events recorded than the years previous because it has not reached year end."
 cap3 <- "This is potentially due to the majority of events during this month being Private/Social events."
@@ -319,7 +319,7 @@ cap9 <- "Conventions and Consumer Tradeshows appear to be the only types that sh
 cap10 <- "In most cases, 2016 appears to have had higher average discounting than 2015. Note that there are multiple months that have passed in 2017 that appear to not have discounted any events."
 cap11 <- "This graph shows the same variables as the previous, but excludes all Private/Social events."
 cap12 <- "Almost all event months show average discount rates between 20% and 50%, December is the only outlier."
-cap13 <- "The only event type that has potential correlation in terms of food and beverage revenue affecting average percentage discount is Conventions. However, even this event type shows minimal trend."
+cap13 <- "There appears to be no relationship between food and beverage revenues and percentage discount."
 cap14 <- "This chart shows average percentage discounts for just Conventions. February conventions are discounted the most out of all months, and there are no conventions held in August or December to show."
 
 # Set font style
@@ -488,6 +488,14 @@ pres <- pres %>%
                                                   summary_by_eventmonth$Mean)), type = "body") %>%
     ph_with_text(type = "sldNum", str = "7" ) %>%
   
+  # Slide with December Counts Table
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+    ph_empty(type = "title") %>%
+    ph_add_par() %>%
+    ph_add_text(str = cap3, type = "title", style = text_prop) %>% 
+    ph_with_flextable(value = ft_decembercounts, type = "body", index = 1) %>%
+    ph_with_text(type = "sldNum", str = "8" ) %>%
+  
   # Slide with Barchart (Event Month - Just Conventions)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
     ph_empty(type = "title") %>%
@@ -496,15 +504,7 @@ pres <- pres %>%
     ph_with_vg(code = print(create_month_barchart(conventionsummary_by_eventmonth,
                                                   conventionsummary_by_eventmonth$event_month,
                                                   conventionsummary_by_eventmonth$Mean)), type = "body") %>%
-    ph_with_text(type = "sldNum", str = "7" ) %>%
-
-  # Slide with December Counts Table
-  add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_empty(type = "title") %>%
-    ph_add_par() %>%
-    ph_add_text(str = cap3, type = "title", style = text_prop) %>% 
-    ph_with_flextable(value = ft_decembercounts, type = "body", index = 1) %>%
-    ph_with_text(type = "sldNum", str = "8" ) %>%
+    ph_with_text(type = "sldNum", str = "9" ) %>%
     
   # Slide with Scatterplot (Advanced Booking and Type)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
