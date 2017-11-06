@@ -227,11 +227,8 @@ convSimPlotOff <- ggplot(
     x = "Minimum food and beverage revenue",
     y = "Simulated revenue",
     color = "Starting\nrental discount",
-    title = "The choice of minimum F&B revenue and initial discount has a large effect on revenue",
-    subtitle = paste0(
-      "Effect of starting discount conditions on convention rental revenue, Jan 2015 - Jun 2017 events, off-peak only\n",
-      "Five discount levels, increases by 10% for every $30,000 in F&B revenue"
-    )
+    title = "Effect of starting discount conditions on convention rental revenue, Jan 2015 - Jun 2017 events, off-peak only",
+    subtitle = "Five discount levels, increases by 10% for every $30,000 in F&B revenue"
   ) +
   annotate(
     "text", 
@@ -268,8 +265,7 @@ cdfPlot <- ggplot(
     x = "Food and beverage revenue",
     y = "Fraction of events",
     color = "Event type",
-    title = "Half of off-peak conventions have < $50,000 in F&B revenue",
-    subtitle = "Fraction of Jan 2015 - Jun 2017 events with given amounts of food and beverage revenue"
+    title = "Fraction of Jan 2015 - Jun 2017 events with given amounts of food and beverage revenue"
   ) +
   scale_x_continuous(limits = c(0, 200000), labels = scales::dollar)
 
@@ -292,7 +288,7 @@ barPlotAll <- ggplot(
     y = "Fraction of events",
     fill = "Discount model",
     title = "Applied all year, proposed model would result in fewer discounted room rates",
-    subtitle = "Fraction of Jan 2015 - Jun 2017 events receiving a discount by event type"
+    title = "Fraction of Jan 2015 - Jun 2017 events receiving a discount by event type"
   ) +
   scale_fill_discrete(labels = c("Proposed model", "Historical")) +
   coord_flip()
@@ -316,17 +312,61 @@ barPlotOff <- ggplot(
     x = "Event type",
     y = "Fraction of events",
     fill = "Discount model",
-    title = "In off-peak times, proposed model would\nresult in about the same number of discounted conventions",
-    subtitle = "Fraction of Jan 2015 - Jun 2017 events receiving a discount by event type, off-peak only"
+    title = "Fraction of Jan 2015 - Jun 2017 events receiving a discount by event type, off-peak only"
   ) +
   scale_fill_discrete(labels = c("Proposed model", "Historical")) +
   coord_flip()
 
-pres <- read_pptx("SCC Room Rental Discount History.pptx")
+discFlexTable <- flextable(as.tibble(proposedDiscountMatrix)) %>%
+  align(align = "center", part = "all") %>%
+  padding(padding = 3, part = "all") %>%
+  bg(bg = "chartreuse3", part = "header") %>%
+  color(color = "white", part = "header") %>%
+  color(color = "darkgreen", part = "body") %>%
+  border(border = fp_border(color = "darkblue"), part = "all") %>%
+  autofit() %>%
+  width(j = 1, width = 3) %>%
+  width(j = 2, width = 3)
+
+pres <- read_pptx("SCC Room Rental Template.pptx")
 
 pres <- pres %>%
+  add_slide(layout = "Title Slide", master = "Office Theme") %>%
+  ph_with_text(type = "ctrTitle", str = "Evaluation of Proposed Discount Model") %>% 
+  
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-  ph_with_vg(code = print(convSimPlotOff), type = "body")
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(str = "Proposed convention discount model for off-peak months", type = "title", style = text_prop) %>%
+  ph_with_flextable(value = discFlexTable, type = "body", index = 1) %>%
+  ph_with_text(type = "sldNum", str = "2" ) %>%
+  
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(
+    "Half of off-peak conventions have < $50,000 if F&B revenue.",
+    type = "body", style = text_prop
+  ) %>%
+  ph_with_vg(code = print(cdfPlot), type = "body") %>%
+  
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(
+    "In off-peak times, proposed model would result in about the same number of discounted conventions",
+    type = "body", style = text_prop
+  ) %>%
+  ph_with_vg(code = print(barPlotOff), type = "body") %>%
+  
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(
+    "The choice of minimum F&B revenue and initial discount has a large effect on off-peak convention revenue",
+    type = "body", style = text_prop
+  ) %>%
+  ph_with_vg(code = print(convSimPlotOff), type = "body") %>%
 
-print(pres, target = "SCC Room Rental Discount History.pptx")
+print(pres, target = "SCC Room Rental Template.pptx")
 
