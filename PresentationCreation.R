@@ -422,7 +422,8 @@ ft_decembercounts <- flextable(december_counts) %>%
 
 # Build Slide Deck
 
-pres <- read_pptx("template.pptx")
+pres <- read_pptx(file.path("V:", "Economic Intelligence", "Shaw Conference Centre",
+                            "Projects", "Discount Analysis", "template.pptx"))
 
 pres <- pres %>%
   # Title Slide
