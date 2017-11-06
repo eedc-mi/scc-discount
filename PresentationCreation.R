@@ -372,7 +372,7 @@ ft_yearbooked <- flextable(summary_by_yearbooked) %>%
   border(border = fp_border(color = "darkblue"), part = "all") %>%
   autofit() %>%
   width(j = 1, width = 3.25)
-  
+
 ft_eventmonth <- flextable(summary_by_eventmonth) %>%
   add_header(top = TRUE, event_month = "Percentage Discount Summary Statistics by Event Month",
              Mean = "", Median = "", Standard_Deviation = "", Max = "", Min = "", n = "") %>%
@@ -422,230 +422,230 @@ ft_decembercounts <- flextable(december_counts) %>%
 
 # Build Slide Deck
 
-pres <- read_pptx()
+pres <- read_pptx("template.pptx")
 
 pres <- pres %>%
   # Title Slide
   add_slide(layout = "Title Slide", master = "Office Theme") %>%
-    ph_with_text(type = "ctrTitle", str = "SCC Room Rental Discount Historical Patterns") %>% 
-    ph_with_text(type = "subTitle", str = "Exploratory Analytics") %>%
+  ph_with_text(type = "ctrTitle", str = "SCC Room Rental Discount Historical Patterns") %>% 
+  ph_with_text(type = "subTitle", str = "Exploratory Analytics") %>%
   
   # Summary Slide
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_with_text(type = "title", index = 1, str = "Summary") %>%
-    ph_with_text(type = "body", str = intro) %>%
-    ph_with_text(type = "sldNum", str = "1" ) %>%
+  ph_with_text(type = "title", index = 1, str = "Summary") %>%
+  ph_with_text(type = "body", str = intro) %>%
+  ph_with_text(type = "sldNum", str = "1" ) %>%
   
   # Slide with Summary Table
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_empty(type = "title") %>%
-    ph_add_par() %>%
-    ph_add_text(str = cap7, type = "title", style = text_prop) %>% 
-    ph_with_flextable(value = ft_discount, type = "body", index = 1) %>%
-    ph_with_text(type = "sldNum", str = "2" ) %>%
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(str = cap7, type = "title", style = text_prop) %>% 
+  ph_with_flextable(value = ft_discount, type = "body", index = 1) %>%
+  ph_with_text(type = "sldNum", str = "2" ) %>%
   
   # Slide with Type Table
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_empty(type = "title") %>%
-    ph_add_par() %>%
-    ph_add_text(str = cap1, type = "title", style = text_prop) %>% 
-    ph_with_flextable(value = ft_type, type = "body", index = 1) %>%
-    ph_with_text(type = "sldNum", str = "3" ) %>%
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(str = cap1, type = "title", style = text_prop) %>% 
+  ph_with_flextable(value = ft_type, type = "body", index = 1) %>%
+  ph_with_text(type = "sldNum", str = "3" ) %>%
   
   # Slide with Barchart (Event Type)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_empty(type = "title") %>%
-    ph_add_par() %>%
-    ph_remove(type = "title", id_chr = 2) %>% 
-    ph_with_vg(code = print(create_barchart(summary_by_type,
-                                            summary_by_type$type,
-                                            summary_by_type$Mean)), type = "body") %>%
-    ph_with_text(type = "sldNum", str = "4" ) %>%
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_remove(type = "title", id_chr = 2) %>% 
+  ph_with_vg(code = print(create_barchart(summary_by_type,
+                                          summary_by_type$type,
+                                          summary_by_type$Mean)), type = "body") %>%
+  ph_with_text(type = "sldNum", str = "4" ) %>%
   
   # Slide with Year Booked Table
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_empty(type = "title") %>%
-    ph_add_par() %>%
-    ph_add_text(str = cap2, type = "title", style = text_prop) %>%
-    ph_with_flextable(value = ft_yearbooked, type = "body", index = 1) %>%
-    ph_with_text(type = "sldNum", str = "5" ) %>%
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(str = cap2, type = "title", style = text_prop) %>%
+  ph_with_flextable(value = ft_yearbooked, type = "body", index = 1) %>%
+  ph_with_text(type = "sldNum", str = "5" ) %>%
   
   # Slide with Event Month Table
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_empty(type = "title") %>%
-    ph_add_par() %>%
-    ph_add_text(str = cap12, type = "title", style = text_prop) %>% 
-    ph_with_flextable(value = ft_eventmonth, type = "body", index = 1) %>%
-    ph_with_text(type = "sldNum", str = "6" ) %>%
-    
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(str = cap12, type = "title", style = text_prop) %>% 
+  ph_with_flextable(value = ft_eventmonth, type = "body", index = 1) %>%
+  ph_with_text(type = "sldNum", str = "6" ) %>%
+  
   # Slide with Barchart (Event Month)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_empty(type = "title") %>%
-    ph_add_par() %>%
-    ph_add_text(str = cap4, type = "title", style = text_prop) %>% 
-    ph_with_vg(code = print(create_month_barchart(summary_by_eventmonth,
-                                                  summary_by_eventmonth$event_month,
-                                                  summary_by_eventmonth$Mean)), type = "body") %>%
-    ph_with_text(type = "sldNum", str = "7" ) %>%
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(str = cap4, type = "title", style = text_prop) %>% 
+  ph_with_vg(code = print(create_month_barchart(summary_by_eventmonth,
+                                                summary_by_eventmonth$event_month,
+                                                summary_by_eventmonth$Mean)), type = "body") %>%
+  ph_with_text(type = "sldNum", str = "7" ) %>%
   
   # Slide with December Counts Table
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_empty(type = "title") %>%
-    ph_add_par() %>%
-    ph_add_text(str = cap3, type = "title", style = text_prop) %>% 
-    ph_with_flextable(value = ft_decembercounts, type = "body", index = 1) %>%
-    ph_with_text(type = "sldNum", str = "8" ) %>%
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(str = cap3, type = "title", style = text_prop) %>% 
+  ph_with_flextable(value = ft_decembercounts, type = "body", index = 1) %>%
+  ph_with_text(type = "sldNum", str = "8" ) %>%
   
   # Slide with Barchart (Event Month - Just Conventions)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_empty(type = "title") %>%
-    ph_add_par() %>%
-    ph_add_text(str = cap14, type = "title", style = text_prop) %>% 
-    ph_with_vg(code = print(create_month_barchart(conventionsummary_by_eventmonth,
-                                                  conventionsummary_by_eventmonth$event_month,
-                                                  conventionsummary_by_eventmonth$Mean)), type = "body") %>%
-    ph_with_text(type = "sldNum", str = "9" ) %>%
-    
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(str = cap14, type = "title", style = text_prop) %>% 
+  ph_with_vg(code = print(create_month_barchart(conventionsummary_by_eventmonth,
+                                                conventionsummary_by_eventmonth$event_month,
+                                                conventionsummary_by_eventmonth$Mean)), type = "body") %>%
+  ph_with_text(type = "sldNum", str = "9" ) %>%
+  
   # Slide with Scatterplot (Advanced Booking and Type)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_empty(type = "title") %>%
-    ph_add_par() %>%
-    ph_add_text(str = cap6, type = "title", style = text_prop) %>% 
-    ph_with_vg(code = print(d2 %>%
-                              group_by(advance_booking, type) %>%
-                              ggplot(aes(x = advance_booking, y = percentage_discount)) +
-                              geom_point(aes(colour=factor(type)), stat = "identity") +
-                              theme(legend.position = "top", legend.direction = "horizontal") +
-                              labs(color = "") +
-                              ggtitle("Percentage Discount by Number of Days Booked in Advance, Grouped by Event Type") +
-                              theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
-                type = "body") %>%
-    ph_with_text(type = "sldNum", str = "10" ) %>%
-
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(str = cap6, type = "title", style = text_prop) %>% 
+  ph_with_vg(code = print(d2 %>%
+                            group_by(advance_booking, type) %>%
+                            ggplot(aes(x = advance_booking, y = percentage_discount)) +
+                            geom_point(aes(colour=factor(type)), stat = "identity") +
+                            theme(legend.position = "top", legend.direction = "horizontal") +
+                            labs(color = "") +
+                            ggtitle("Percentage Discount by Number of Days Booked in Advance, Grouped by Event Type") +
+                            theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
+             type = "body") %>%
+  ph_with_text(type = "sldNum", str = "10" ) %>%
+  
   # Slide with Bar Chart (Event Type and Year Booked)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_empty(type = "title") %>%
-    ph_add_par() %>%
-    ph_add_text(str = cap8, type = "title", style = text_prop) %>% 
-    ph_with_vg(code = print(d2 %>%
-                              group_by(year_booked, type) %>%
-                              summarise(mean_percentage_discount = mean(percentage_discount),
-                                        median = median(percentage_discount),
-                                        standard_dev = sd(percentage_discount),
-                                        min = min(percentage_discount),
-                                        max = max(percentage_discount),
-                                        n = n()) %>%
-                              ggplot(aes(x = type, y = mean_percentage_discount, fill = year_booked)) +
-                              scale_fill_manual(values = c("chartreuse3", "goldenrod1", "darkblue")) +
-                              geom_bar(stat = "identity", position = position_dodge()) +
-                              theme(legend.position = "top", legend.direction = "horizontal") +
-                              labs(fill="") +
-                              xlab("Event Type") + ylab("Mean Percent Discount") +
-                              ggtitle("Mean Percentage Discount by Event Type, Grouped by Year Booked") +
-                              theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
-               type = "body") %>%
-    ph_with_text(type = "sldNum", str = "11" ) %>%
-
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(str = cap8, type = "title", style = text_prop) %>% 
+  ph_with_vg(code = print(d2 %>%
+                            group_by(year_booked, type) %>%
+                            summarise(mean_percentage_discount = mean(percentage_discount),
+                                      median = median(percentage_discount),
+                                      standard_dev = sd(percentage_discount),
+                                      min = min(percentage_discount),
+                                      max = max(percentage_discount),
+                                      n = n()) %>%
+                            ggplot(aes(x = type, y = mean_percentage_discount, fill = year_booked)) +
+                            scale_fill_manual(values = c("chartreuse3", "goldenrod1", "darkblue")) +
+                            geom_bar(stat = "identity", position = position_dodge()) +
+                            theme(legend.position = "top", legend.direction = "horizontal") +
+                            labs(fill="") +
+                            xlab("Event Type") + ylab("Mean Percent Discount") +
+                            ggtitle("Mean Percentage Discount by Event Type, Grouped by Year Booked") +
+                            theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
+             type = "body") %>%
+  ph_with_text(type = "sldNum", str = "11" ) %>%
+  
   # Slide with Scatterplot (Rental Revenue and Type - Private/Social)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_empty(type = "title") %>%
-    ph_add_par() %>%
-    ph_add_text(str = cap9, type = "title", style = text_prop) %>% 
-    ph_with_vg(code = print(dtypesubset %>%
-                              group_by(rental_revenue, type) %>%
-                              ggplot(aes(x = rental_revenue, y = percentage_discount)) +
-                              geom_point(aes(colour=factor(type)), stat = "identity") +
-                              theme(legend.position = "top", legend.direction = "horizontal") +
-                              labs(color = "") +
-                              ggtitle("Percentage Discount by Rental Revenue, Grouped by Event Type") +
-                              theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
-              type = "body") %>%
-    ph_with_text(type = "sldNum", str = "12" ) %>%
-
-
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(str = cap9, type = "title", style = text_prop) %>% 
+  ph_with_vg(code = print(dtypesubset %>%
+                            group_by(rental_revenue, type) %>%
+                            ggplot(aes(x = rental_revenue, y = percentage_discount)) +
+                            geom_point(aes(colour=factor(type)), stat = "identity") +
+                            theme(legend.position = "top", legend.direction = "horizontal") +
+                            labs(color = "") +
+                            ggtitle("Percentage Discount by Rental Revenue, Grouped by Event Type") +
+                            theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
+             type = "body") %>%
+  ph_with_text(type = "sldNum", str = "12" ) %>%
+  
+  
   # Slide with Bar Chart (Year Booked and Event Month)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_empty(type = "title") %>%
-    ph_add_par() %>%
-    ph_add_text(str = cap10, type = "title", style = text_prop) %>% 
-    ph_with_vg(code = print(d2 %>%
-                              group_by(year_booked, event_month) %>%
-                              summarise(mean_percentage_discount = mean(percentage_discount),
-                                        median = median(percentage_discount),
-                                        standard_dev = sd(percentage_discount),
-                                        min = min(percentage_discount),
-                                        max = max(percentage_discount),
-                                        n = n()) %>%
-                              mutate(event_month = factor(event_month,
-                                                          levels = c("January", "February",
-                                                                    "March", "April", "May",
-                                                                    "June", "July", "August",
-                                                                    "September", "October",
-                                                                    "November", "December"))) %>%
-                              arrange(event_month) %>%
-                              ggplot(aes(x = event_month,
-                                        y = mean_percentage_discount,
-                                        fill = year_booked)) +
-                              scale_fill_manual(values = c("chartreuse3", "goldenrod1", "darkblue")) +
-                              geom_bar(stat = "identity", position = position_dodge()) +
-                              theme(legend.position = "top", legend.direction = "horizontal") +
-                              labs(fill="") +
-                              xlab("Event Month") + ylab("Mean Percent Discount")+
-                              ggtitle("Mean Percentage Discount by Event Month, Grouped by Year Booked") +
-                              theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
-              type = "body") %>%
-    ph_with_text(type = "sldNum", str = "13" ) %>%
-
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(str = cap10, type = "title", style = text_prop) %>% 
+  ph_with_vg(code = print(d2 %>%
+                            group_by(year_booked, event_month) %>%
+                            summarise(mean_percentage_discount = mean(percentage_discount),
+                                      median = median(percentage_discount),
+                                      standard_dev = sd(percentage_discount),
+                                      min = min(percentage_discount),
+                                      max = max(percentage_discount),
+                                      n = n()) %>%
+                            mutate(event_month = factor(event_month,
+                                                        levels = c("January", "February",
+                                                                   "March", "April", "May",
+                                                                   "June", "July", "August",
+                                                                   "September", "October",
+                                                                   "November", "December"))) %>%
+                            arrange(event_month) %>%
+                            ggplot(aes(x = event_month,
+                                       y = mean_percentage_discount,
+                                       fill = year_booked)) +
+                            scale_fill_manual(values = c("chartreuse3", "goldenrod1", "darkblue")) +
+                            geom_bar(stat = "identity", position = position_dodge()) +
+                            theme(legend.position = "top", legend.direction = "horizontal") +
+                            labs(fill="") +
+                            xlab("Event Month") + ylab("Mean Percent Discount")+
+                            ggtitle("Mean Percentage Discount by Event Month, Grouped by Year Booked") +
+                            theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
+             type = "body") %>%
+  ph_with_text(type = "sldNum", str = "13" ) %>%
+  
   # Slide with Bar Chart (Year Booked and Event Month - Private/Social)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_empty(type = "title") %>%
-    ph_add_par() %>%
-    ph_add_text(str = cap11, type = "title", style = text_prop) %>% 
-    ph_with_vg(code = print(dtypesubset %>%
-                              group_by(year_booked, event_month) %>%
-                              summarise(mean_percentage_discount = mean(percentage_discount),
-                                        median = median(percentage_discount),
-                                        standard_dev = sd(percentage_discount),
-                                        min = min(percentage_discount),
-                                        max = max(percentage_discount),
-                                        n = n()) %>%
-                              mutate(event_month = factor(event_month,
-                                                          levels = c("January", "February",
-                                                                     "March", "April","May",
-                                                                     "June", "July", "August",
-                                                                     "September", "October",
-                                                                     "November", "December"))) %>%
-                              arrange(event_month) %>%
-                              ggplot(aes(x = event_month,
-                                         y = mean_percentage_discount,
-                                         fill = year_booked)) +
-                              scale_fill_manual(values = c("chartreuse3", "goldenrod1", "darkblue")) +
-                              geom_bar(stat = "identity", position = position_dodge()) +
-                              theme(legend.position = "top", legend.direction = "horizontal") +
-                              labs(fill="") +
-                              xlab("Event Month") + ylab("Mean Percent Discount") +
-                              ggtitle("Mean Percentage Discount by Event Month, Grouped by Year Booked") +
-                              theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
-               type = "body") %>%
-    ph_with_text(type = "sldNum", str = "14" ) %>%
-
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(str = cap11, type = "title", style = text_prop) %>% 
+  ph_with_vg(code = print(dtypesubset %>%
+                            group_by(year_booked, event_month) %>%
+                            summarise(mean_percentage_discount = mean(percentage_discount),
+                                      median = median(percentage_discount),
+                                      standard_dev = sd(percentage_discount),
+                                      min = min(percentage_discount),
+                                      max = max(percentage_discount),
+                                      n = n()) %>%
+                            mutate(event_month = factor(event_month,
+                                                        levels = c("January", "February",
+                                                                   "March", "April","May",
+                                                                   "June", "July", "August",
+                                                                   "September", "October",
+                                                                   "November", "December"))) %>%
+                            arrange(event_month) %>%
+                            ggplot(aes(x = event_month,
+                                       y = mean_percentage_discount,
+                                       fill = year_booked)) +
+                            scale_fill_manual(values = c("chartreuse3", "goldenrod1", "darkblue")) +
+                            geom_bar(stat = "identity", position = position_dodge()) +
+                            theme(legend.position = "top", legend.direction = "horizontal") +
+                            labs(fill="") +
+                            xlab("Event Month") + ylab("Mean Percent Discount") +
+                            ggtitle("Mean Percentage Discount by Event Month, Grouped by Year Booked") +
+                            theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
+             type = "body") %>%
+  ph_with_text(type = "sldNum", str = "14" ) %>%
+  
   # Slide with Scatterplot (Food/Beverage Revenue and Type)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_empty(type = "title") %>%
-    ph_add_par() %>%
-    ph_add_text(str = cap13, type = "title", style = text_prop) %>% 
-    ph_with_vg(code = print(d2 %>%
-                              group_by(food_beverage_revenue, type) %>%
-                              ggplot(aes(x = food_beverage_revenue, y = percentage_discount)) +
-                              geom_point(aes(colour=factor(type)), stat = "identity") +
-                              theme(legend.position = "top", legend.direction = "horizontal") +
-                              labs(color = "") +
-                              ggtitle("Percentage Discount by Food/Beverage Revenue, Grouped by Event Type") +
-                              theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
-              type = "body") %>%
-    ph_with_text(type = "sldNum", str = "15" )
-    
-  # Save Powerpoint
-  print(pres, target = "SCC Room Rental Discount History.pptx") %>%
-    invisible()
-    
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(str = cap13, type = "title", style = text_prop) %>% 
+  ph_with_vg(code = print(d2 %>%
+                            group_by(food_beverage_revenue, type) %>%
+                            ggplot(aes(x = food_beverage_revenue, y = percentage_discount)) +
+                            geom_point(aes(colour=factor(type)), stat = "identity") +
+                            theme(legend.position = "top", legend.direction = "horizontal") +
+                            labs(color = "") +
+                            ggtitle("Percentage Discount by Food/Beverage Revenue, Grouped by Event Type") +
+                            theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
+             type = "body") %>%
+  ph_with_text(type = "sldNum", str = "15" )
+
+# Save Powerpoint
+print(pres, target = "SCC Room Rental Template.pptx") %>%
+  invisible()
+
