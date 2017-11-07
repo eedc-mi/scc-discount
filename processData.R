@@ -11,7 +11,8 @@ dataPath <- file.path(
   "Shaw Conference Centre", 
   "Projects", 
   "Discount Analysis", 
-  "Data")
+  "Data"
+)
 
 # USI -> GL Transaction Inquiry -> EEDC - discount analysis - gl
 glPath <- file.path(dataPath, "gl.csv")
@@ -113,7 +114,10 @@ tib <- tib %>%
   group_by(event_id, revenue_group) %>%
   summarize(revenue = sum(amount, na.rm = TRUE)) %>%
   spread(revenue_group, revenue, fill = 0) %>%
-  mutate(total_revenue = rental_revenue + other_revenue + rental_discount + food_beverage_revenue)
+  mutate(
+    total_revenue = rental_revenue + other_revenue + rental_discount + food_beverage_revenue,
+    total_revenue_pre_discount = rental_revenue + other_revenue + food_beverage_revenue
+  )
 
 data <- left_join(eventData, tib, by = "event_id")
 

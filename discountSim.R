@@ -6,6 +6,14 @@ library(officer)
 
 setwd(here())
 
+pptPath <- file.path(
+  "V:", 
+  "Economic Intelligence", 
+  "Shaw Conference Centre", 
+  "Projects", 
+  "Discount Analysis"
+)
+
 tib <- read_rds("data.rds")
 
 proposedDiscountMatrix <- cbind(
@@ -13,7 +21,7 @@ proposedDiscountMatrix <- cbind(
   discount = c(0, -.10, -.25, -.35, -.45, -.55)
 )
 
-offPeakMonths <- c(1, 6, 7, 8, 12)
+offPeakMonths <- c(1, 7, 8, 12)
 allMonths <- seq(1, 12, 1)
 
 makeDiscountMatrix <- function(fbStart, fbStep, dStart, dStep, numSteps) {
@@ -227,8 +235,11 @@ convSimPlotOff <- ggplot(
     x = "Minimum food and beverage revenue",
     y = "Simulated revenue",
     color = "Starting\nrental discount",
-    title = "Effect of starting discount conditions on convention rental revenue, Jan 2015 - Jun 2017 events, off-peak only",
-    subtitle = "Five discount levels, increases by 10% for every $30,000 in F&B revenue"
+    title = "Effect of starting discount conditions on convention rental revenue",
+    subtitle = paste0(
+      "Jan 2015 - Jun 2017 events, off-peak only\n", 
+      "Five discount levels, increases by 10% for every $30,000 in F&B revenue"
+    )
   ) +
   annotate(
     "text", 
@@ -317,7 +328,32 @@ barPlotOff <- ggplot(
   scale_fill_discrete(labels = c("Proposed model", "Historical")) +
   coord_flip()
 
+discScatter <- ggplot(
+  proposedAllMonths %>%
+    filter(type == "Convention (CONV)", rental_discount < 0) %>%
+    mutate(
+      new_rental_discount = -1 * (rental_revenue * new_discount),
+      old_rental_discount = -1 * rental_discount,
+      is_off_peak = month(start_date) %in% offPeakMonths
+    ),
+  aes(
+    x = old_rental_discount, y = new_rental_discount, 
+    size = total_event_attendance, color = is_off_peak)) +
+  geom_point() +
+  geom_abline(linetype = "dashed") + 
+  labs(
+    x = "Actual discount",
+    y = "Proposed discount",
+    size = "Total attendance",
+    color = "Event month",
+    title = "Historical vs. proposed discounts for Jan 2015 - Jun 2017 conventions"
+  ) +
+  scale_color_discrete(labels = c("Peak", "Off-peak")) +
+  scale_x_continuous(labels = scales::dollar) +
+  scale_y_continuous(labels = scales::dollar)
+
 discFlexTable <- flextable(as.tibble(proposedDiscountMatrix)) %>%
+  set_header_labels(fbRev = "Amount of F&B Revenue", discount = "Rental Discount") %>%
   align(align = "center", part = "all") %>%
   padding(padding = 3, part = "all") %>%
   bg(bg = "chartreuse3", part = "header") %>%
@@ -328,45 +364,52 @@ discFlexTable <- flextable(as.tibble(proposedDiscountMatrix)) %>%
   width(j = 1, width = 3) %>%
   width(j = 2, width = 3)
 
-pres <- read_pptx("SCC Room Rental Template.pptx")
+ppt <- read_pptx("SCC Room Rental Template.pptx")
 
-pres <- pres %>%
+ppt <- ppt %>%
   add_slide(layout = "Title Slide", master = "Office Theme") %>%
   ph_with_text(type = "ctrTitle", str = "Evaluation of Proposed Discount Model") %>% 
   
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
   ph_empty(type = "title") %>%
   ph_add_par() %>%
-  ph_add_text(str = "Proposed convention discount model for off-peak months", type = "title", style = text_prop) %>%
+  ph_add_text(
+    str = paste(
+      "Below is the proposed convention discount model for off-peak months.",
+      "This analysis considers Jan, Jul, Aug, and Dec 'off-peak'.",
+      "The choice of off-peak month is not obvious (e.g. Feb slow overall but busy for conventions.)"
+    ), type = "title", style = text_prop) %>%
   ph_with_flextable(value = discFlexTable, type = "body", index = 1) %>%
-  ph_with_text(type = "sldNum", str = "2" ) %>%
   
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
   ph_empty(type = "title") %>%
   ph_add_par() %>%
   ph_add_text(
-    "Half of off-peak conventions have < $50,000 if F&B revenue.",
-    type = "body", style = text_prop
+    str = "Half of off-peak conventions have < $50,000 in F&B revenue",
+    type = "title", style = text_prop
   ) %>%
-  ph_with_vg(code = print(cdfPlot), type = "body") %>%
+  ph_with_vg(code = print(cdfPlot), type = "body", index = 1) %>%
   
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
   ph_empty(type = "title") %>%
   ph_add_par() %>%
   ph_add_text(
-    "In off-peak times, proposed model would result in about the same number of discounted conventions",
-    type = "body", style = text_prop
+    str = "In off-peak times, proposed model would result in about the same number of discounted conventions",
+    type = "title", style = text_prop
   ) %>%
-  ph_with_vg(code = print(barPlotOff), type = "body") %>%
+  ph_with_vg(code = print(barPlotOff), type = "body", index = 1) %>%
   
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
   ph_empty(type = "title") %>%
   ph_add_par() %>%
   ph_add_text(
-    "The choice of minimum F&B revenue and initial discount has a large effect on off-peak convention revenue",
-    type = "body", style = text_prop
+    str = paste0(
+      "Proposed model would result in higher overall rental prices for convention clients, hence higher revenue.",
+      "The choice of minimum F&B revenue and initial discount has a large effect on off-peak convention revenue"  
+    ),
+    type = "title", style = text_prop
   ) %>%
-  ph_with_vg(code = print(convSimPlotOff), type = "body") %>%
+  ph_with_vg(code = print(convSimPlotOff), type = "body", index = 1)
 
-print(pres, target = "SCC Room Rental Template.pptx")
+print(ppt, target = "SCC Room Rental Template.pptx")
 
