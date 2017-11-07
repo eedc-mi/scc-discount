@@ -60,7 +60,7 @@ d2$tr_bins <- cut(d2$total_revenue, c(0,50000,100000,150000,200000,250000,
 
 # Add Percentage Discount column
 
-d2$percentage_discount <- (d2$rental_discount)/(d2$rental_revenue)*100
+d2$percentage_discount <- (d2$rental_discount)/(d2$rental_revenue_pre_discount)*100
 
 # Sort Start Dates and Dates Booked into months
 
@@ -167,21 +167,15 @@ convention_stats <- subset(d2, type == "Convention (CONV)")
 
 discountvalue_summary <- d2 %>%
   summarise(Discount = "Dollar Value",
-            Mean = round(mean(rental_discount), digits = 3),
-            Median = round(median(rental_discount), digits = 3),
-            Standard_Deviation = round(sd(rental_discount), digits = 3),
-            Min = round(min(rental_discount), digits = 3),
-            Max = round(max(rental_discount), digits = 3),
-            n = n())
+            Mean = round(mean(rental_discount), digits = 0),
+            Median = round(median(rental_discount), digits = 0),
+            Number_of_Events = n())
 
 percent_discount_summary <- d2 %>%
   summarise(Discount = "Percent",
-            Mean = round(mean(percentage_discount), digits = 3),
-            Median = round(median(percentage_discount), digits = 3),
-            Standard_Deviation = round(sd(percentage_discount), digits = 3),
-            Min = round(min(percentage_discount), digits = 3),
-            Max = round(max(percentage_discount), digits = 3),
-            n = n())
+            Mean = round(mean(percentage_discount), digits = 0),
+            Median = round(median(percentage_discount), digits = 0),
+            Number_of_Events = n())
 
 summary_discount <- rbind(discountvalue_summary, percent_discount_summary)
 
@@ -193,12 +187,9 @@ summary_stats <- function(df, category, discount) {
   
   df %>%
     group_by(!!category) %>%
-    summarize(Mean = round(mean(!!discount), digits = 3),
-              Median = round(median(!!discount), digits = 3),
-              Standard_Deviation = round(sd(!!discount), digits = 3),
-              Min = round(min(!!discount), digits = 3),
-              Max = round(max(!!discount), digits = 3),
-              n = n())
+    summarize(Mean = round(mean(!!discount), digits = 0),
+              Median = round(median(!!discount), digits = 0),
+              Number_of_Events = n())
 }
 
 # Function to use for summary stats that involve a month variable
@@ -209,12 +200,9 @@ summary_stats_month <- function(df, category, discount) {
   
   df %>%
     group_by(!!category) %>%
-    summarize(Mean = round(mean(!!discount), digits = 3),
-              Median = round(median(!!discount), digits = 3),
-              Standard_Deviation = round(sd(!!discount), digits = 3),
-              Min = round(min(!!discount), digits = 3),
-              Max = round(max(!!discount), digits = 3),
-              n = n()) %>%
+    summarize(Mean = round(mean(!!discount), digits = 0),
+              Median = round(median(!!discount), digits = 0),
+              Number_of_Events = n()) %>%
     mutate(category = factor(!!!category,
                              levels = c("January", "February", "March", "April",
                                         "May", "June", "July", "August",
@@ -321,6 +309,10 @@ cap11 <- "This graph shows the same variables as the previous, but excludes all 
 cap12 <- "Almost all event months show average discount rates between 20% and 50%, December is the only outlier."
 cap13 <- "There appears to be no relationship between food and beverage revenues and percentage discount."
 cap14 <- "This chart shows average percentage discounts for just Conventions. February conventions are discounted the most out of all months, and there are no conventions held in August or December to show."
+cap15 <- "This plot shows the dollar value of the rental discount by the dollar value of the food and beverage revenue for each event."
+cap16 <- "Total event attendance has a slight trend when looking at the dollar value of the rental discount applied to conventions specifically."
+cap17 <- "The rental discount dollar value seems to show some trend when plotted against total revenue before discounts, especially for conventions."
+cap18 <- "This shows the trendline with 95% confidence interval for rental discount dollar value based on total revenue before discounts."
 
 # Set font style
 
@@ -330,8 +322,8 @@ text_prop <- fp_text(font.size = 16)
 
 ft_discount <- flextable(summary_discount) %>%
   add_header(top = TRUE, Discount = "Discount Summary Statistics",
-             Mean = "", Median = "", Standard_Deviation = "", Max = "", Min = "", n = "") %>%
-  merge_at(i = 1, j = 1:7, part = "header") %>%
+             Mean = "", Median = "", Number_of_Events = "") %>%
+  merge_at(i = 1, j = 1:4, part = "header") %>%
   fontsize(part = "header", size = 16) %>%
   bold(part = "header") %>%
   align(align = "center", part = "all") %>%
@@ -341,12 +333,15 @@ ft_discount <- flextable(summary_discount) %>%
   color(color = "darkgreen", part = "body") %>%
   border(border = fp_border(color = "darkblue"), part = "all") %>%
   autofit() %>%
-  width(j = 1, width = 3.25)
+  width(j = 1, width = 3) %>%
+  width(j = 2, width = 1.5) %>%
+  width(j = 3, width = 1.5) %>%
+  width(j = 4, width = 3)
 
 ft_type <- flextable(summary_by_type) %>%
   add_header(top = TRUE, type = "Percentage Discount Summary Statistics by Event Type",
-             Mean = "", Median = "", Standard_Deviation = "", Max = "", Min = "", n = "") %>%
-  merge_at(i = 1, j = 1:7, part = "header") %>%
+             Mean = "", Median = "", Number_of_Events = "") %>%
+  merge_at(i = 1, j = 1:4, part = "header") %>%
   fontsize(part = "header", size = 16) %>%
   bold(part = "header") %>%
   align(align = "center", part = "all") %>%
@@ -356,12 +351,15 @@ ft_type <- flextable(summary_by_type) %>%
   color(color = "darkgreen", part = "body") %>%
   border(border = fp_border(color = "darkblue"), part = "all") %>%
   autofit() %>%
-  width(j = 1, width = 3.25)
+  width(j = 1, width = 3) %>%
+  width(j = 2, width = 1.5) %>%
+  width(j = 3, width = 1.5) %>%
+  width(j = 4, width = 3)
 
 ft_yearbooked <- flextable(summary_by_yearbooked) %>%
   add_header(top = TRUE, year_booked = "Percentage Discount Summary Statistics by Year Booked",
-             Mean = "", Median = "", Standard_Deviation = "", Max = "", Min = "", n = "") %>%
-  merge_at(i = 1, j = 1:7, part = "header") %>%
+             Mean = "", Median = "", Number_of_Events = "") %>%
+  merge_at(i = 1, j = 1:4, part = "header") %>%
   fontsize(part = "header", size = 16) %>%
   bold(part = "header") %>%
   align(align = "center", part = "all") %>%
@@ -371,12 +369,15 @@ ft_yearbooked <- flextable(summary_by_yearbooked) %>%
   color(color = "darkgreen", part = "body") %>%
   border(border = fp_border(color = "darkblue"), part = "all") %>%
   autofit() %>%
-  width(j = 1, width = 3.25)
+  width(j = 1, width = 3) %>%
+  width(j = 2, width = 1.5) %>%
+  width(j = 3, width = 1.5) %>%
+  width(j = 4, width = 3)
 
 ft_eventmonth <- flextable(summary_by_eventmonth) %>%
   add_header(top = TRUE, event_month = "Percentage Discount Summary Statistics by Event Month",
-             Mean = "", Median = "", Standard_Deviation = "", Max = "", Min = "", n = "") %>%
-  merge_at(i = 1, j = 1:7, part = "header") %>%
+             Mean = "", Median = "", Number_of_Events = "") %>%
+  merge_at(i = 1, j = 1:4, part = "header") %>%
   fontsize(part = "header", size = 16) %>%
   bold(part = "header") %>%
   align(align = "center", part = "all") %>%
@@ -386,12 +387,15 @@ ft_eventmonth <- flextable(summary_by_eventmonth) %>%
   color(color = "darkgreen", part = "body") %>%
   border(border = fp_border(color = "darkblue"), part = "all") %>%
   autofit() %>%
-  width(j = 1, width = 3.25)
+  width(j = 1, width = 3) %>%
+  width(j = 2, width = 1.5) %>%
+  width(j = 3, width = 1.5) %>%
+  width(j = 4, width = 3)
 
 ft_monthbooked <- flextable(summary_by_monthbooked) %>%
   add_header(top = TRUE, month_booked = "Percentage Discount Summary Statistics by Month Booked",
-             Mean = "", Median = "", Standard_Deviation = "", Max = "", Min = "", n = "") %>%
-  merge_at(i = 1, j = 1:7, part = "header") %>%
+             Mean = "", Median = "", Number_of_Events = "") %>%
+  merge_at(i = 1, j = 1:4, part = "header") %>%
   fontsize(part = "header", size = 16) %>%
   bold(part = "header") %>%
   align(align = "center", part = "all") %>%
@@ -401,7 +405,10 @@ ft_monthbooked <- flextable(summary_by_monthbooked) %>%
   color(color = "darkgreen", part = "body") %>%
   border(border = fp_border(color = "darkblue"), part = "all") %>%
   autofit() %>%
-  width(j = 1, width = 3.25)
+  width(j = 1, width = 3) %>%
+  width(j = 2, width = 1.5) %>%
+  width(j = 3, width = 1.5) %>%
+  width(j = 4, width = 3)
 
 ft_decembercounts <- flextable(december_counts) %>%
   add_header(top = TRUE, type = "Number of Events by Type in December",
@@ -644,7 +651,75 @@ pres <- pres %>%
                             ggtitle("Percentage Discount by Food/Beverage Revenue, Grouped by Event Type") +
                             theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
              type = "body") %>%
-  ph_with_text(type = "sldNum", str = "15" )
+  ph_with_text(type = "sldNum", str = "15" ) %>%
+
+  # Slide with Scatterplot (Food/Beverage Revenue and Type w/ Rental Discount)
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(str = cap15, type = "title", style = text_prop) %>% 
+  ph_with_vg(code = print(d2 %>%
+                            group_by(food_beverage_revenue, type) %>%
+                            ggplot(aes(x = food_beverage_revenue, y = rental_discount)) +
+                            geom_point(aes(colour=factor(type)), stat = "identity") +
+                            theme(legend.position = "top", legend.direction = "horizontal") +
+                            labs(color = "") +
+                            ggtitle("Rental Discount by Food/Beverage Revenue, Grouped by Event Type") +
+                            theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
+            type = "body") %>%
+  ph_with_text(type = "sldNum", str = "16" ) %>%
+  
+  # Slide with Scatterplot (Total Event Attendance vs Rental Discount (Conventions Only))
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(str = cap16, type = "title", style = text_prop) %>% 
+  ph_with_vg(code = print(convention_stats %>%
+                            group_by(total_event_attendance, type) %>%
+                            ggplot(aes(x = total_event_attendance, y = rental_discount)) +
+                            geom_point(aes(colour=factor(type)), stat = "identity") +
+                            theme(legend.position = "top", legend.direction = "horizontal") +
+                            geom_smooth(method = "lm") +
+                            labs(color = "") +
+                            ggtitle("Rental Discount by Total Event Attendance, Grouped by Event Type") +
+                            theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
+             type = "body") %>%
+  ph_with_text(type = "sldNum", str = "17" ) %>%
+
+  # Slide with Scatterplot (Total Revenue vs Rental Discount by Event Type)
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(str = cap17, type = "title", style = text_prop) %>% 
+  ph_with_vg(code = print(d2 %>%
+                            group_by(total_revenue_pre_discount, type) %>%
+                            ggplot(aes(x = total_revenue_pre_discount, y = rental_discount)) +
+                            geom_point(aes(colour = factor(type)), stat = "identity") +
+                            theme(legend.position = "top", legend.direction = "horizontal") +
+                            labs(color = "") +
+                            ggtitle("Rental Discount by Total Revenue Pre Discount, Grouped by Event Type") +
+                            theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
+             type = "body") %>%
+  ph_with_text(type = "sldNum", str = "18" ) %>%
+  
+  # Slide with Scatterplot (Total Revenue vs Rental Discount by Event Type (Conventions Only))
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(str = cap18, type = "title", style = text_prop) %>% 
+  ph_with_vg(code = print(convention_stats %>%
+                            group_by(total_revenue_pre_discount, type) %>%
+                            ggplot(aes(x = total_revenue_pre_discount, y = rental_discount)) +
+                            geom_point(aes(colour = factor(type)), stat = "identity") +
+                            theme(legend.position = "top", legend.direction = "horizontal") +
+                            geom_smooth(method = "lm") +
+                            labs(color = "") +
+                            ggtitle("Rental Discount by Total Revenue Pre Discount") +
+                            theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
+             type = "body") %>%
+  ph_with_text(type = "sldNum", str = "19" )
+
+
 
 # Save Powerpoint
 print(pres, target = "SCC Room Rental Template.pptx") %>%
