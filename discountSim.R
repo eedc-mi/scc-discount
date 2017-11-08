@@ -387,7 +387,7 @@ discRevScatter <- ggplot(
   aes(
     x = food_beverage_revenue, y = new_rental_discount, 
     size = total_event_attendance, color = is_off_peak)) +
-  geom_point() +
+  geom_point(shape = 1) +
   labs(
     x = "Food and beverage revenue",
     y = "Proposed discount",
