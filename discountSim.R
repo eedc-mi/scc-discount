@@ -144,10 +144,7 @@ proposedAllMonths <- tib %>%
 
 proposedResultAll <- proposedAllMonths %>%
   mutate(
-    new_rental_revenue = case_when(
-      month(start_date) %in% allMonths ~ rental_revenue + (rental_revenue * new_discount),
-      TRUE ~ rental_revenue + rental_discount
-    ),
+    new_rental_revenue = rental_revenue + (rental_revenue * new_discount),
     old_rental_revenue = rental_revenue + rental_discount
   ) %>%
   group_by(type) %>%
@@ -162,10 +159,7 @@ proposedOffPeak <- tib %>%
 
 proposedResultOff <- proposedOffPeak %>%
   mutate(
-    new_rental_revenue = case_when(
-      month(start_date) %in% allMonths ~ rental_revenue + (rental_revenue * new_discount),
-      TRUE ~ rental_revenue + rental_discount
-    ),
+    new_rental_revenue = rental_revenue + (rental_revenue * new_discount),
     old_rental_revenue = rental_revenue + rental_discount
   ) %>%
   group_by(type) %>%
@@ -174,7 +168,7 @@ proposedResultOff <- proposedOffPeak %>%
     old_rental_revenue = sum(old_rental_revenue, na.rm = TRUE)
   )
 
-minFbRev <- seq(10000, 100000, by = 1000)
+minFbRev <- seq(0, 100000, by = 1000)
 minDisc <- seq(-0.1, -.30, by = -0.05)
 sim <- simStartConditions(tib, minFbRev, minDisc, 30000, -0.1, 5, offPeakMonths)
 simAll <- simStartConditions(tib, minFbRev, minDisc, 30000, -0.1, 5, allMonths)
@@ -217,7 +211,8 @@ convSimPlotAll <- ggplot(
     label = c("Proposed model", "Actual revenue")
   ) + 
   scale_x_continuous(labels = scales::dollar) +
-  scale_y_continuous(labels = scales::dollar)
+  scale_y_continuous(labels = scales::dollar) +
+  theme(plot.title = element_text(face = "bold"))
 
 #Conventions only, off-peak months
 convSimPlotOff <- ggplot(
@@ -253,7 +248,8 @@ convSimPlotOff <- ggplot(
     label = c("Proposed model", "Actual revenue")
   ) + 
   scale_x_continuous(labels = scales::dollar) +
-  scale_y_continuous(labels = scales::dollar)
+  scale_y_continuous(labels = scales::dollar) + 
+  theme(plot.title = element_text(face = "bold"))
 
 cdfPlot <- ggplot(
   rbind(
@@ -278,7 +274,8 @@ cdfPlot <- ggplot(
     color = "Event type",
     title = "Fraction of Jan 2015 - Jun 2017 events with given amounts of food and beverage revenue"
   ) +
-  scale_x_continuous(limits = c(0, 200000), labels = scales::dollar)
+  scale_x_continuous(limits = c(0, 200000), labels = scales::dollar) + 
+  theme(plot.title = element_text(face = "bold"))
 
 barPlotAll <- ggplot(
   proposedAllMonths %>%
@@ -301,8 +298,9 @@ barPlotAll <- ggplot(
     title = "Applied all year, proposed model would result in fewer discounted room rates",
     title = "Fraction of Jan 2015 - Jun 2017 events receiving a discount by event type"
   ) +
-  scale_fill_discrete(labels = c("Proposed model", "Historical")) +
-  coord_flip()
+  scale_fill_discrete(labels = c("Proposed model", "Actual")) +
+  coord_flip() + 
+  theme(plot.title = element_text(face = "bold"))
 
 barPlotOff <- ggplot(
   proposedAllMonths %>%
@@ -323,10 +321,35 @@ barPlotOff <- ggplot(
     x = "Event type",
     y = "Fraction of events",
     fill = "Discount model",
-    title = "Fraction of Jan 2015 - Jun 2017 events receiving a discount by event type, off-peak only"
+    title = "Fraction of Jan 2015 - Jun 2017 events with a discount, off-peak only"
   ) +
-  scale_fill_discrete(labels = c("Proposed model", "Historical")) +
-  coord_flip()
+  scale_fill_discrete(labels = c("Proposed model", "Actual")) +
+  coord_flip() + 
+  theme(plot.title = element_text(face = "bold"))
+
+barPlotOffDollars <- ggplot(
+  proposedAllMonths %>%
+    filter(month(start_date) %in% offPeakMonths) %>%
+    group_by(type) %>%
+    summarize(
+      sum_old = sum(rental_discount, na.rm = TRUE),
+      sum_new = sum((new_discount * rental_revenue), na.rm = TRUE)
+    ) %>%
+    select(type, sum_old, sum_new) %>%
+    filter(sum_old < 0) %>%
+    gather(key = discount, value = value, sum_old:sum_new),
+  aes(x = type, y = -1 * value, fill = discount)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    x = "Event type",
+    y = "Total room rental discount",
+    fill = "Discount model",
+    title = "Total rental discounts for Jan 2015 - Jun 2017 events, off-peak only"
+  ) +
+  scale_fill_discrete(labels = c("Proposed model", "Actual")) +
+  scale_y_continuous(labels = scales::dollar) +
+  coord_flip() + 
+  theme(plot.title = element_text(face = "bold"))
 
 discScatter <- ggplot(
   proposedAllMonths %>%
@@ -346,11 +369,36 @@ discScatter <- ggplot(
     y = "Proposed discount",
     size = "Total attendance",
     color = "Event month",
-    title = "Historical vs. proposed discounts for Jan 2015 - Jun 2017 conventions"
+    title = "Actual vs. proposed discounts for Jan 2015 - Jun 2017 conventions"
   ) +
   scale_color_discrete(labels = c("Peak", "Off-peak")) +
   scale_x_continuous(labels = scales::dollar) +
-  scale_y_continuous(labels = scales::dollar)
+  scale_y_continuous(labels = scales::dollar) + 
+  theme(plot.title = element_text(face = "bold"))
+
+discRevScatter <- ggplot(
+  proposedAllMonths %>%
+    filter(type == "Convention (CONV)", rental_discount < 0) %>%
+    mutate(
+      new_rental_discount = -1 * (rental_revenue * new_discount),
+      food_beverage_revenue = food_beverage_revenue,
+      is_off_peak = month(start_date) %in% offPeakMonths
+    ),
+  aes(
+    x = food_beverage_revenue, y = new_rental_discount, 
+    size = total_event_attendance, color = is_off_peak)) +
+  geom_point() +
+  labs(
+    x = "Food and beverage revenue",
+    y = "Proposed discount",
+    size = "Total attendance",
+    color = "Event month",
+    title = "F&B revenue vs. proposed discounts for Jan 2015 - Jun 2017 conventions"
+  ) +
+  scale_color_discrete(labels = c("Peak", "Off-peak")) +
+  scale_x_continuous(labels = scales::dollar) +
+  scale_y_continuous(labels = scales::dollar) + 
+  theme(plot.title = element_text(face = "bold"))
 
 discFlexTable <- flextable(as.tibble(proposedDiscountMatrix)) %>%
   set_header_labels(fbRev = "Amount of F&B Revenue", discount = "Rental Discount") %>%
@@ -377,16 +425,21 @@ ppt <- ppt %>%
     str = paste(
       "Below is the proposed convention discount model for off-peak months.",
       "This analysis considers Jan, Jul, Aug, and Dec 'off-peak'.",
-      "The choice of off-peak month is not obvious (e.g. Feb slow overall but busy for conventions.)"
-    ), type = "title", style = text_prop) %>%
+      "The choice of off-peak months is not obvious (e.g. Feb slow overall but busy for conventions)",
+      "and has a large impact on the results in the next slides."
+    ), type = "title", style = fp_text(font.size = 16)) %>%
   ph_with_flextable(value = discFlexTable, type = "body", index = 1) %>%
   
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
   ph_empty(type = "title") %>%
   ph_add_par() %>%
   ph_add_text(
-    str = "Half of off-peak conventions have < $50,000 in F&B revenue",
-    type = "title", style = text_prop
+    str = paste(
+      "For any discount model, a key factor is how many events it would apply to.",
+      "Based on past events, the proposed model would apply to relatively few events",
+      "as half of off-peak conventions have < $50,000 in F&B revenue"
+    ),
+    type = "title", style = fp_text(font.size = 16)
   ) %>%
   ph_with_vg(code = print(cdfPlot), type = "body", index = 1) %>%
   
@@ -395,7 +448,7 @@ ppt <- ppt %>%
   ph_add_par() %>%
   ph_add_text(
     str = "In off-peak times, proposed model would result in about the same number of discounted conventions",
-    type = "title", style = text_prop
+    type = "title", style = fp_text(font.size = 16)
   ) %>%
   ph_with_vg(code = print(barPlotOff), type = "body", index = 1) %>%
   
@@ -403,13 +456,36 @@ ppt <- ppt %>%
   ph_empty(type = "title") %>%
   ph_add_par() %>%
   ph_add_text(
-    str = paste0(
-      "Proposed model would result in higher overall rental prices for convention clients, hence higher revenue.",
-      "The choice of minimum F&B revenue and initial discount has a large effect on off-peak convention revenue"  
-    ),
-    type = "title", style = text_prop
+    str = "However, the proposed model would result in far lower discounts for off-peak conventions",
+    type = "title", style = fp_text(font.size = 16)
   ) %>%
-  ph_with_vg(code = print(convSimPlotOff), type = "body", index = 1)
+  ph_with_vg(code = print(barPlotOffDollars), type = "body", index = 1) %>%
+  
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(
+    str = paste(
+      "By simulating the proposed model, we can see how it would have affected actual revenue (dashed lines below),",
+      "and to show how actual revenue would have changed given different F&B cutoffs and starting discounts (coloured lines below.)",
+      "Proposed model would result in higher overall rental prices for convention clients, hence higher revenue." 
+    ),
+    type = "title", style = fp_text(font.size = 16)
+  ) %>%
+  ph_with_vg(code = print(convSimPlotOff), type = "body", index = 1) %>%
+  
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_empty(type = "title") %>%
+  ph_add_par() %>%
+  ph_add_text(
+    str = paste(
+      "To consider: is the goal of discounting conventions more revenue, higher attendance, or other?",
+      "As shown below, proposed model would not give discounts to some larger conventions with low",
+      "food and beverage revenue."
+    ),
+    type = "title", style = fp_text(font.size = 16)
+  ) %>%
+  ph_with_vg(code = print(discRevScatter), type = "body", index = 1)
 
 print(ppt, target = "SCC Room Rental Template.pptx")
 
