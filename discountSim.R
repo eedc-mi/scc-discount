@@ -398,7 +398,7 @@ discRevScatter <- ggplot(
   scale_color_discrete(labels = c("Peak", "Off-peak")) +
   scale_x_continuous(labels = scales::dollar) +
   scale_y_continuous(labels = scales::dollar) + 
-  theme(plot.title = element_text(face = "bold"))
+  theme(plot.title = element_text(face = "bold")) 
 
 discFlexTable <- flextable(as.tibble(proposedDiscountMatrix)) %>%
   set_header_labels(fbRev = "Amount of F&B Revenue", discount = "Rental Discount") %>%
