@@ -307,7 +307,7 @@ create_month_barchart <- function(df, category, y) {
 
 intro <- "The following tables and charts show rental discount patterns over the past few years in relation to different variables."
 intro2 <- "From initial analyses, there are not many conclusive patterns for discounting room rentals. Instead, a great deal of variation exists between discounts, regardless of which variable is being observed."
-intro3 <- "One strong trend does exist with Conventions being discounted more heavily in January and February."
+intro3 <- "One strong trend does exist with conventions being discounted more heavily in January and February."
 intro4 <- "The most important overarching observation is that there exists a relationship between the dollar value of the rental discount and the total event revenue before discount, but this relationship disappears when replacing dollar value discount with percentage discount."
 cap1 <- "Percentage discount varies between 3% and 16% based on the type of event with concerts receiving the lowest percentage discount."
 cap2 <- "Percentage discount varies each year with 2016 showing the highest average and median discount. It is important to note that 2017 has far fewer events recorded than the years previous because it has not reached year end."
@@ -466,37 +466,41 @@ pres <- pres %>%
   ph_add_text(str = "Median - the value that is the midpoint of the observations when they are sorted from smallest to largest",
               style = level_1) %>%
   ph_add_par(level = 2) %>%
-  ph_add_text(str = "Can be helpful to show skewness of data",
+  ph_add_text(str = "Can be helpful to show if the data is skewed to one side, meaning that more of the data is closer to the maximum value or the minimum value in the data set",
               style = level_2) %>%
   ph_add_par(level = 3) %>%
-  ph_add_text(str = "If median is close to the max observation value, the data is skewed to the left. This means most of the observations appear toward the higher end of the observation scale.",
+  ph_add_text(str = "If median is close to the max observation value, most of the observations appear closer to the maximum observation value in the data set.",
               style = level_3) %>%
   ph_add_par(level = 3) %>%
-  ph_add_text(str = "If median is close to the min observation value, it is skewed to the right. This means most of the observations appear toward the lower end of the observation scale.",
+  ph_add_text(str = "If median is close to the min observation value, most of the observations appear closer to the minimum observation value in the data set.",
               style = level_3) %>%
+  ph_add_par(level = 1) %>%
+  ph_add_text(str = "Correlation - the relationship between two variables",
+              style = level_1) %>%
   ph_with_text(type = "title", index = 1, str = "Definitions") %>%
+  ph_with_img_at(src = "skewness_diagram.jpg", width = 6, height = 2, left = 2, top = 5) %>%
   ph_with_text(type = "sldNum", str = "1" ) %>%
   
   # Data Cleaning Slide
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
   ph_empty(type = "body") %>%
   ph_add_par(level = 1) %>%
-  ph_add_text(str = "Raw Data",
+  ph_add_text(str = "Data from USI",
               style = level_1) %>%
   ph_add_par(level = 2) %>%
-  ph_add_text(str = "2940 observations (135 of these are conventions)",
+  ph_add_text(str = "2940 events (135 of these are conventions)",
               style = level_2) %>%
   ph_add_par(level = 2) %>%
   ph_add_text(str = "Includes all events from USI that occured between January 2015 and the end of June 2017",
               style = level_2) %>%
   ph_add_par(level = 1) %>%
-  ph_add_text(str = "Cleaned Data",
+  ph_add_text(str = "Usable Data for Analysis",
               style = level_1) %>%
   ph_add_par(level = 2) %>%
-  ph_add_text(str = "565 observations (103 of these are conventions)",
+  ph_add_text(str = "565 events (103 of these are conventions)",
               style = level_2) %>%
   ph_add_par(level = 2) %>%
-  ph_add_text(str = "Observations with NA values in the following variables were omitted:",
+  ph_add_text(str = "Events with NA (missing) values in the following variables were omitted:",
               style = level_2) %>%
   ph_add_par(level = 3) %>%
   ph_add_text(str = "rental_discount",
@@ -505,7 +509,7 @@ pres <- pres %>%
   ph_add_text(str = "rental_revenue",
               style = level_3) %>%
   ph_add_par(level = 2) %>%
-  ph_add_text(str = "Observations with zero values in the following variables were omitted:",
+  ph_add_text(str = "Events with values of zero in the following variables were omitted:",
               style = level_2) %>%
   ph_add_par(level = 3) %>%
   ph_add_text(str = "rental_revenue",
@@ -514,7 +518,7 @@ pres <- pres %>%
   ph_add_text(str = "total_event_attendance",
               style = level_3) %>%
   ph_add_par(level = 2) %>%
-  ph_add_text(str = "Observations with positive rental_discount values (inflation charges) were omitted",
+  ph_add_text(str = "Events with positive rental_discount values (inflation charges) were omitted",
               style = level_2) %>%
   ph_with_text(type = "title", index = 1, str = "Data Cleaning Process") %>%
   ph_with_text(type = "sldNum", str = "2" ) %>%
@@ -523,13 +527,13 @@ pres <- pres %>%
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
   ph_empty(type = "body") %>%
   ph_add_par(level = 1) %>%
-  ph_add_text(str = "Variables that could not be analyzed due to gaps in data:",
+  ph_add_text(str = "Variables that could not be analyzed due to missing data:",
               style = level_1) %>%
   ph_add_par(level = 2) %>%
   ph_add_text(str = "actual_economic_impact",
               style = level_2) %>%
   ph_add_par(level = 3) %>%
-  ph_add_text(str = "Only 77/2940 observations had values for this variable",
+  ph_add_text(str = "Only 77/2940 events had values for this variable",
               style = level_3) %>%
   ph_add_par(level = 1) %>%
   ph_add_text(str = "Variables that could not be analyzed due to complexity/variable format issues:",
@@ -628,13 +632,13 @@ pres <- pres %>%
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
   ph_empty(type = "body") %>%
   ph_add_par(level = 1) %>%
-  ph_add_text(str = "Seasonality due to the recurring nature of cyclical events",
+  ph_add_text(str = "Seasonality due to the recurring nature of events",
               style = level_1) %>%
   ph_add_par(level = 2) %>%
   ph_add_text(str = "Events that occur during the same time of year each year should show high correlation",
               style = level_2) %>%
   ph_add_par(level = 2) %>%
-  ph_add_text(str = "Each month when compared across different years should in theory produce similar average percentage discount values because of this expected seasonality",
+  ph_add_text(str = "Each month when compared across different years should in theory produce similar average percentage discount values because of this",
               style = level_2) %>%
   ph_add_par(level = 2) %>%
   ph_add_text(str = "Some months are assumed to be slower than others for certain event types, and therefore it would be expected that events taking place during slow months would be discounted more heavily",
