@@ -315,7 +315,7 @@ cap3 <- "This is potentially due to the majority of events during these months b
 cap4 <- "December and June events appear to be discounted the most."
 cap5 <- "Events booked in January, April, August, October, and December have median discount rates of 0%. The highest number of events booked in a single month is January, with 118 more events than the next highest month March."
 cap6 <- "The number of days an event was booked in advance had no influence on the discount."
-cap7 <- "Dollar value summary statistics may not be as useful when looking at patterns due to the variety of event sizes, however, analysis was still conducted with both dollar values and percentages to show any discrepancies in patterns."
+cap7 <- "Analysis was conducted with both dollar values and percentages to show any discrepancies in patterns."
 cap8 <- "Discount percentages vary by event type when grouped by the year the event was booked as well."
 cap9 <- "Conventions and Consumer Tradeshows appear to be the only types that show correlation between rental revenue and mean percentage discount. Note, Private/Social events were excluded from this graph."
 cap10 <- "In most cases, 2016 appears to have had higher average discounting than 2015. Note that January of 2017 has passed, but appears to not have discounted any events."
