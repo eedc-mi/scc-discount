@@ -74,6 +74,10 @@ d2$month_booked <- month_booked
 
 d2$year_booked <- as.factor(year(d2$date_booked))
 
+# Add event_year column
+
+d2$event_year <- as.factor(year(d2$start_date))
+
 # Add advance_booking column (days booked in advance of event)
 
 d2$advance_booking <- as.numeric(d2$start_date - d2$date_booked)
@@ -166,6 +170,10 @@ convention_stats_original <- subset(d1, type == "Convention (CONV)")
 
 trsh_stats <- subset(d2, type == "Consumer Tradeshow (TRSH)")
 
+# Concerts only subset
+
+con_stats <- subset(d2, type == "Concert (CON)")
+
 #-------------------
 # Full Sample Stats
 #-------------------
@@ -237,7 +245,7 @@ summary_by_usessalon <- summary_stats(d2, uses_salon, percentage_discount)
 
 summary_by_usesroom <- summary_stats(d2, uses_room, percentage_discount)
 
-summary_by_yearbooked <- summary_stats(d2, year_booked, percentage_discount)
+summary_by_eventyear <- summary_stats(d2, event_year, percentage_discount)
 
 summary_by_foodbeveragerevenue <- summary_stats(d2, food_beverage_revenue, percentage_discount)
 
@@ -249,10 +257,10 @@ summary_by_monthbooked <- summary_stats_month(d2, month_booked, percentage_disco
 
 conventionsummary_by_eventmonth <- summary_stats_month(convention_stats, event_month, percentage_discount)
 
-# Total event counts by type per year booked
+# Total event counts by type per year
 
 event_counts_year <- d2 %>%
-  group_by(type, year_booked) %>%
+  group_by(type, event_year) %>%
   summarise(number_of_events = n())
 
 # Total event counts by type per month
@@ -374,8 +382,8 @@ ft_type <- flextable(summary_by_type) %>%
   width(j = 3, width = 1.5) %>%
   width(j = 4, width = 3)
 
-ft_yearbooked <- flextable(summary_by_yearbooked) %>%
-  add_header(top = TRUE, year_booked = "Percentage Discount Summary Statistics by Year Booked",
+ft_eventyear <- flextable(summary_by_eventyear) %>%
+  add_header(top = TRUE, event_year = "Percentage Discount Summary Statistics by Year Booked",
              Mean = "", Median = "", Number_of_Events = "") %>%
   merge_at(i = 1, j = 1:4, part = "header") %>%
   fontsize(part = "header", size = 16) %>%
@@ -590,13 +598,13 @@ pres <- pres %>%
   ph_add_text(str = "The month an event was booked",
               style = level_2) %>%
   ph_add_par(level = 1) %>%
-  ph_add_text(str = "year_booked",
+  ph_add_text(str = "event_year",
               style = level_1) %>%
   ph_add_par(level = 2) %>%
-  ph_add_text(str = "= year of date_booked",
+  ph_add_text(str = "= year of start_date",
               style = level_2) %>%
   ph_add_par(level = 2) %>%
-  ph_add_text(str = "The year an event was booked",
+  ph_add_text(str = "The year an event took place",
               style = level_2) %>%
   ph_add_par(level = 1) %>%
   ph_add_text(str = "advance_booking",
@@ -711,12 +719,12 @@ pres <- pres %>%
                                           summary_by_type$Mean)), type = "body") %>%
   ph_with_text(type = "sldNum", str = "9" ) %>%
   
-  # Slide with Year Booked Table
+  # Slide with Event Year Table
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
   ph_empty(type = "title") %>%
   ph_add_par() %>%
   ph_add_text(str = cap2, type = "title", style = text_prop) %>%
-  ph_with_flextable(value = ft_yearbooked, type = "body", index = 1) %>%
+  ph_with_flextable(value = ft_eventyear, type = "body", index = 1) %>%
   ph_with_text(type = "sldNum", str = "10" ) %>%
   
   # Slide with Event Month Table
@@ -771,37 +779,37 @@ pres <- pres %>%
              type = "body") %>%
   ph_with_text(type = "sldNum", str = "15" ) %>%
   
-  # Slide with Bar Chart (Event Type and Year Booked)
+  # Slide with Bar Chart (Event Type and Event Year)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
   ph_empty(type = "title") %>%
   ph_add_par() %>%
   ph_add_text(str = cap8, type = "title", style = text_prop) %>% 
   ph_with_vg(code = print(d2 %>%
-                            group_by(year_booked, type) %>%
+                            group_by(event_year, type) %>%
                             summarise(mean_percentage_discount = mean(percentage_discount),
                                       median = median(percentage_discount),
                                       standard_dev = sd(percentage_discount),
                                       min = min(percentage_discount),
                                       max = max(percentage_discount),
                                       n = n()) %>%
-                            ggplot(aes(x = type, y = mean_percentage_discount, fill = year_booked)) +
+                            ggplot(aes(x = type, y = mean_percentage_discount, fill = event_year)) +
                             scale_fill_manual(values = c("chartreuse3", "goldenrod1", "darkblue")) +
                             geom_bar(stat = "identity", position = position_dodge()) +
                             theme(legend.position = "top", legend.direction = "horizontal") +
                             labs(fill="") +
                             xlab("Event Type") + ylab("Mean Percent Discount") +
-                            ggtitle("Mean Percentage Discount by Event Type, Grouped by Year Booked") +
+                            ggtitle("Mean Percentage Discount by Event Type, Grouped by Event Year") +
                             theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
              type = "body") %>%
   ph_with_text(type = "sldNum", str = "16" ) %>%
   
-  # Slide with Bar Chart (Year Booked and Event Month)
+  # Slide with Bar Chart (Event Year and Event Month)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
   ph_empty(type = "title") %>%
   ph_add_par() %>%
   ph_add_text(str = cap10, type = "title", style = text_prop) %>% 
   ph_with_vg(code = print(d2 %>%
-                            group_by(year_booked, event_month) %>%
+                            group_by(event_year, event_month) %>%
                             summarise(mean_percentage_discount = mean(percentage_discount),
                                       median = median(percentage_discount),
                                       standard_dev = sd(percentage_discount),
@@ -817,24 +825,24 @@ pres <- pres %>%
                             arrange(event_month) %>%
                             ggplot(aes(x = event_month,
                                        y = mean_percentage_discount,
-                                       fill = year_booked)) +
+                                       fill = event_year)) +
                             scale_fill_manual(values = c("chartreuse3", "goldenrod1", "darkblue")) +
                             geom_bar(stat = "identity", position = position_dodge()) +
                             theme(legend.position = "top", legend.direction = "horizontal") +
                             labs(fill="") +
                             xlab("Event Month") + ylab("Mean Percent Discount") +
-                            ggtitle("Mean Percentage Discount by Event Month, Grouped by Year Booked") +
+                            ggtitle("Mean Percentage Discount by Event Month, Grouped by Event Year") +
                             theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
              type = "body") %>%
   ph_with_text(type = "sldNum", str = "17" ) %>%
   
-  # Slide with Bar Chart (Year Booked and Event Month - Private/Social)
+  # Slide with Bar Chart (Event Year and Event Month - Private/Social)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
   ph_empty(type = "title") %>%
   ph_add_par() %>%
   ph_add_text(str = cap11, type = "title", style = text_prop) %>% 
   ph_with_vg(code = print(dtypesubset %>%
-                            group_by(year_booked, event_month) %>%
+                            group_by(event_year, event_month) %>%
                             summarise(mean_percentage_discount = mean(percentage_discount),
                                       median = median(percentage_discount),
                                       standard_dev = sd(percentage_discount),
@@ -850,13 +858,13 @@ pres <- pres %>%
                             arrange(event_month) %>%
                             ggplot(aes(x = event_month,
                                        y = mean_percentage_discount,
-                                       fill = year_booked)) +
+                                       fill = event_year)) +
                             scale_fill_manual(values = c("chartreuse3", "goldenrod1", "darkblue")) +
                             geom_bar(stat = "identity", position = position_dodge()) +
                             theme(legend.position = "top", legend.direction = "horizontal") +
                             labs(fill="") +
                             xlab("Event Month") + ylab("Mean Percent Discount") +
-                            ggtitle("Mean Percentage Discount by Event Month, Grouped by Year Booked") +
+                            ggtitle("Mean Percentage Discount by Event Month, Grouped by Event Year") +
                             theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
              type = "body") %>%
   ph_with_text(type = "sldNum", str = "18" ) %>%
