@@ -509,7 +509,8 @@ pres <- pres %>%
   ph_add_text(str = "Correlation - the relationship between two variables",
               style = level_1) %>%
   ph_with_text(type = "title", index = 1, str = "Definitions") %>%
-  ph_with_img_at(src = "skewness_diagram.jpg", width = 6, height = 2, left = 2, top = 5) %>%
+  ph_with_img_at(src = file.path("V:", "Economic Intelligence", "Shaw Conference Centre", "Projects", "Discount Analysis","skewness_diagram.jpg"),
+                 width = 6, height = 2, left = 2, top = 5) %>%
   ph_with_text(type = "sldNum", str = "1" ) %>%
   
   # Data Cleaning Slide
@@ -880,6 +881,23 @@ pres <- pres %>%
   ph_with_text(type = "sldNum", str = "19" ) %>%
   
   # Slide with Bar Chart (Event Year and Event Month - Conventions)
+  
+#  convention_statsALL <- rbind(convention_stats,
+#                               cbind(expand.grid(
+#                                 event_month = levels(convention_stats$event_month),
+#                                 event_year = levels(convention_stats$event_year),
+#                                 percentage_discount = NA)))
+  
+#  convention_stats$event_month <- as.factor(convention_stats$event_month)
+#  convention_stats$event_year <- as.factor(convention_stats$event_year)
+#  convention_statsALL <- rbind(convention_stats,
+#                               cbind(expand.grid(
+#                                 event_year = levels(convention_stats$event_year),
+#                                 event_month = levels(convention_stats$event_month),
+#                                 percentage_discount = NA)))
+
+#  convention_stats2 <- expand.grid()
+  
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
   ph_empty(type = "title") %>%
   ph_add_par() %>%
