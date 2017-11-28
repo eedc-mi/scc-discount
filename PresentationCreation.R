@@ -476,6 +476,26 @@ ft_decembercounts <- flextable(december_counts) %>%
   width(j = 2, width = 3) %>%
   width(j = 3, width = 3)
 
+# Create subsets that will have same width bars when plotted
+
+d2_2 <- expand.grid(event_year = unique(d2$event_year),
+                   event_month = unique(d2$event_month)) %>%
+data.frame %>% left_join(d2)
+
+convention_stats2 <- expand.grid(event_year = unique(convention_stats$event_year),
+                                 event_month = unique(convention_stats$event_month)) %>%
+data.frame %>% left_join(convention_stats)
+
+
+trsh_stats2 <- expand.grid(event_year = unique(trsh_stats$event_year),
+                           event_month = unique(trsh_stats$event_month)) %>%
+data.frame %>% left_join(trsh_stats)
+
+
+mtg_stats2 <- expand.grid(event_year = unique(mtg_stats$event_year),
+                          event_month = unique(mtg_stats$event_month)) %>%
+data.frame %>% left_join(mtg_stats)
+
 # Build Slide Deck
 
 pres <- read_pptx(file.path("V:", "Economic Intelligence", "Shaw Conference Centre",
@@ -852,7 +872,7 @@ pres <- pres %>%
   ph_empty(type = "title") %>%
   ph_add_par() %>%
   ph_add_text(str = cap10, type = "title", style = text_prop) %>% 
-  ph_with_vg(code = print(d2 %>%
+  ph_with_vg(code = print(d2_2 %>%
                             group_by(event_year, event_month) %>%
                             summarise(mean_percentage_discount = mean(percentage_discount),
                                       median = median(percentage_discount),
@@ -873,6 +893,7 @@ pres <- pres %>%
                             scale_fill_manual(values = c("chartreuse3", "goldenrod1", "darkblue")) +
                             geom_bar(stat = "identity", position = position_dodge()) +
                             theme(legend.position = "top", legend.direction = "horizontal") +
+                            scale_x_discrete(drop = FALSE) +
                             labs(fill="") +
                             xlab("Event Month") + ylab("Mean Percent Discount") +
                             ggtitle("Mean Percentage Discount by Event Month, Grouped by Event Year") +
@@ -881,28 +902,11 @@ pres <- pres %>%
   ph_with_text(type = "sldNum", str = "19" ) %>%
   
   # Slide with Bar Chart (Event Year and Event Month - Conventions)
-  
-#  convention_statsALL <- rbind(convention_stats,
-#                               cbind(expand.grid(
-#                                 event_month = levels(convention_stats$event_month),
-#                                 event_year = levels(convention_stats$event_year),
-#                                 percentage_discount = NA)))
-  
-#  convention_stats$event_month <- as.factor(convention_stats$event_month)
-#  convention_stats$event_year <- as.factor(convention_stats$event_year)
-#  convention_statsALL <- rbind(convention_stats,
-#                               cbind(expand.grid(
-#                                 event_year = levels(convention_stats$event_year),
-#                                 event_month = levels(convention_stats$event_month),
-#                                 percentage_discount = NA)))
-
-#  convention_stats2 <- expand.grid()
-  
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
   ph_empty(type = "title") %>%
   ph_add_par() %>%
   ph_add_text(str = cap22, type = "title", style = text_prop) %>% 
-  ph_with_vg(code = print(convention_stats %>%
+  ph_with_vg(code = print(convention_stats2 %>%
                             group_by(event_year, event_month) %>%
                             summarise(mean_percentage_discount = mean(percentage_discount),
                                       median = median(percentage_discount),
@@ -923,6 +927,7 @@ pres <- pres %>%
                             scale_fill_manual(values = c("chartreuse3", "goldenrod1", "darkblue")) +
                             geom_bar(stat = "identity", position = position_dodge()) +
                             theme(legend.position = "top", legend.direction = "horizontal") +
+                            scale_x_discrete(drop = FALSE) +
                             labs(fill="") +
                             xlab("Event Month") + ylab("Mean Percent Discount") +
                             ggtitle("Mean Percentage Discount by Event Month, Grouped by Event Year") +
@@ -935,7 +940,7 @@ pres <- pres %>%
   ph_empty(type = "title") %>%
   ph_add_par() %>%
   ph_add_text(str = cap23, type = "title", style = text_prop) %>% 
-  ph_with_vg(code = print(trsh_stats %>%
+  ph_with_vg(code = print(trsh_stats2 %>%
                             group_by(event_year, event_month) %>%
                             summarise(mean_percentage_discount = mean(percentage_discount),
                                       median = median(percentage_discount),
@@ -956,6 +961,7 @@ pres <- pres %>%
                             scale_fill_manual(values = c("chartreuse3", "goldenrod1", "darkblue")) +
                             geom_bar(stat = "identity", position = position_dodge()) +
                             theme(legend.position = "top", legend.direction = "horizontal") +
+                            scale_x_discrete(drop = FALSE) +
                             labs(fill="") +
                             xlab("Event Month") + ylab("Mean Percent Discount") +
                             ggtitle("Mean Percentage Discount by Event Month, Grouped by Event Year") +
@@ -968,7 +974,7 @@ pres <- pres %>%
   ph_empty(type = "title") %>%
   ph_add_par() %>%
   ph_add_text(str = cap24, type = "title", style = text_prop) %>% 
-  ph_with_vg(code = print(mtg_stats %>%
+  ph_with_vg(code = print(mtg_stats2 %>%
                             group_by(event_year, event_month) %>%
                             summarise(mean_percentage_discount = mean(percentage_discount),
                                       median = median(percentage_discount),
@@ -989,6 +995,7 @@ pres <- pres %>%
                             scale_fill_manual(values = c("chartreuse3", "goldenrod1", "darkblue")) +
                             geom_bar(stat = "identity", position = position_dodge()) +
                             theme(legend.position = "top", legend.direction = "horizontal") +
+                            scale_x_discrete(drop = FALSE) +
                             labs(fill="") +
                             xlab("Event Month") + ylab("Mean Percent Discount") +
                             ggtitle("Mean Percentage Discount by Event Month, Grouped by Event Year") +
