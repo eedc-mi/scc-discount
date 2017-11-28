@@ -3,6 +3,8 @@ library(lubridate)
 library(stringr)
 library(here)
 library(officer)
+library(flextable)
+library(rvg)
 
 setwd(here())
 
