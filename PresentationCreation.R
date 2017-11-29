@@ -803,9 +803,20 @@ pres <- pres %>%
   ph_empty(type = "title") %>%
   ph_add_par() %>%
   ph_add_text(str = cap14, type = "title", style = text_prop) %>% 
-  ph_with_vg(code = print(create_month_barchart(conventionsummary_by_eventmonth,
-                                                conventionsummary_by_eventmonth$event_month,
-                                                conventionsummary_by_eventmonth$Mean)), type = "body") %>%
+  ph_with_vg(code = print(conventionsummary_by_eventmonth %>%
+                              mutate(event_month = factor(event_month,
+                                                       levels = c("January", "February", "March", "April",
+                                                                  "May", "June", "July", "August",
+                                                                  "September", "October", "November", 
+                                                                  "December"))) %>%
+                              arrange(event_month) %>%
+                              ggplot(aes(x = event_month, y = Mean)) +
+                              geom_bar(stat = "identity", fill = "chartreuse3") +
+                              scale_x_discrete(drop = FALSE) +
+                              ggtitle("Mean Percentage Discount by Event Month", subtitle = "Conventions") +
+                              theme(plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
+                                    plot.subtitle = element_text(size = 12, hjust = 0.5)) +
+                              xlab("Event Month") + ylab("Mean Percent Discount")), type = "body") %>%
   ph_with_text(type = "sldNum", str = "14" ) %>%
   
   # Slide with Barchart (Event Month - Just Trade Shows)
@@ -813,9 +824,20 @@ pres <- pres %>%
   ph_empty(type = "title") %>%
   ph_add_par() %>%
   ph_add_text(str = cap20, type = "title", style = text_prop) %>% 
-  ph_with_vg(code = print(create_month_barchart(trshsummary_by_eventmonth,
-                                                trshsummary_by_eventmonth$event_month,
-                                                trshsummary_by_eventmonth$Mean)), type = "body") %>%
+  ph_with_vg(code = print(trshsummary_by_eventmonth %>%
+                            mutate(event_month = factor(event_month,
+                                                        levels = c("January", "February", "March", "April",
+                                                                   "May", "June", "July", "August",
+                                                                   "September", "October", "November", 
+                                                                   "December"))) %>%
+                            arrange(event_month) %>%
+                            ggplot(aes(x = event_month, y = Mean)) +
+                            geom_bar(stat = "identity", fill = "chartreuse3") +
+                            scale_x_discrete(drop = FALSE) +
+                            ggtitle("Mean Percentage Discount by Event Month", subtitle = "Trade Shows") +
+                            theme(plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
+                                  plot.subtitle = element_text(size = 12, hjust = 0.5)) +
+                            xlab("Event Month") + ylab("Mean Percent Discount")), type = "body") %>%
   ph_with_text(type = "sldNum", str = "15" ) %>%
   
   # Slide with Barchart (Event Month - Just Meetings)
@@ -823,9 +845,20 @@ pres <- pres %>%
   ph_empty(type = "title") %>%
   ph_add_par() %>%
   ph_add_text(str = cap21, type = "title", style = text_prop) %>% 
-  ph_with_vg(code = print(create_month_barchart(mtgsummary_by_eventmonth,
-                                                mtgsummary_by_eventmonth$event_month,
-                                                mtgsummary_by_eventmonth$Mean)), type = "body") %>%
+  ph_with_vg(code = print(mtgsummary_by_eventmonth %>%
+                            mutate(event_month = factor(event_month,
+                                                        levels = c("January", "February", "March", "April",
+                                                                   "May", "June", "July", "August",
+                                                                   "September", "October", "November", 
+                                                                   "December"))) %>%
+                            arrange(event_month) %>%
+                            ggplot(aes(x = event_month, y = Mean)) +
+                            geom_bar(stat = "identity", fill = "chartreuse3") +
+                            scale_x_discrete(drop = FALSE) +
+                            ggtitle("Mean Percentage Discount by Event Month", subtitle = "Meetings") +
+                            theme(plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
+                                  plot.subtitle = element_text(size = 12, hjust = 0.5)) +
+                            xlab("Event Month") + ylab("Mean Percent Discount")), type = "body") %>%
   ph_with_text(type = "sldNum", str = "16" ) %>%
   
   # Slide with Scatterplot (Advanced Booking and Type)
