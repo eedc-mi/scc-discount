@@ -334,7 +334,7 @@ create_month_barchart <- function(df, category, y) {
 
 intro <- "The following tables and charts show rental discount patterns over the past few years in relation to different variables."
 intro2 <- "From initial analyses, there are not many conclusive patterns for discounting room rentals. Instead, a great deal of variation exists between discounts, regardless of which variable is being observed."
-intro3 <- "One strong trend does exist with conventions being discounted more heavily in January and February."
+intro3 <- "One strong trend does exist with conventions being discounted more heavily in January."
 intro4 <- "The most important overarching observation is that there exists a relationship between the dollar value of the rental discount and the total event revenue before discount, but this relationship disappears when replacing dollar value discount with percentage discount."
 cap1 <- "Percentage discount varies between 7% and 14% based on the type of event."
 cap2 <- "Percentage discount varies each year with 2016 showing the highest average and median discount."
@@ -349,20 +349,19 @@ cap10 <- "In most cases, 2016 appears to have had higher average discounting tha
 cap11 <- "This graph shows the same variables as the previous, but excludes all Private/Social events."
 cap12 <- "Average discount rates by event month range between 7% and 21%."
 cap13 <- "There appears to be no relationship between food and beverage revenues and percentage discount."
-cap14 <- "This chart shows average percentage discounts for conventions. January conventions are discounted the most out of all months, and there are no conventions held in August or December to show."
-cap15 <- "This plot shows that the dollar value of the food and beverage revenue has some correlation with the dollar value of the rental discount for conventions and private/social events."
+cap14 <- "January conventions are discounted the most out of all months, and there are no conventions held in August or December that were discounted."
+cap15 <- "This plot shows that the dollar value of the food and beverage revenue has some correlation with the dollar value of the rental discount for conventions."
 cap16 <- "Total event attendance has a slight trend when looking at the dollar value of the rental discount applied to conventions specifically."
 cap17 <- "The rental discount dollar value seems to show some trend when plotted against total revenue before discounts, especially for conventions."
 cap18 <- "Meetings receive the highest average percentage discounts."
 cap19 <- "When looking at percentage discount compared with total revenue before discount, the patten displayed in the dollar value discount plot disappears."
-cap20 <- "This chart shows average percentage discounts for trade shows. August trade shows are discounted the most, and there are no trade shows in the months of July or December that received discounts."
-cap21 <- "This chart shows average percentage discounts for meetings. June meetings are discounted the most on average, and February meetings are discounted far less than any other month."
-cap22 <- "Conventions do not show any clear pattern in average percentage discounts over the past three years when comparing monthly."
-cap23 <- "There is less data for trade shows, so it is difficult to draw any conclusions from this chart."
-cap24 <- "There appears to be a pattern for discounting Meetings in 2016, and a lack of discounting in 2015."
-cap25 <- "For trade shows, the trend between dollar value of the rental discount and total event attendance is slightly stronger than that for conventions. However, this could be an effect of a few very large events causing the trendline to be more steep."
-cap26 <- "Meetings show a similar trend to conventions, but it is important to note the placement of many of the events along the x-axis, which could be causing the steepness of the trendline to decrease."
-cap27 <- "Before looking at the next graphs, it is important to recognize the difference in number of events held in each month of each year for each event type."
+cap20 <- "August and October trade shows are discounted the most, and there are no trade shows in the months of July or December that received discounts."
+cap21 <- "June meetings are discounted the most on average, and February meetings are discounted far less than any other month."
+cap22 <- "Conventions do not show any clear pattern in average percentage discounts over the past three years when comparing monthly. This could be partially due to the events in each month being different sizes. For example, January 2017 appears to have high average discounts, however, there were very few conventions held in January which can be confirmed on the previous slide."
+cap23 <- "There is less data for trade shows, so it is difficult to draw any conclusive patterns from this chart."
+cap24 <- "There appears to be a slight pattern for discounting Meetings in 2016, and a lack of discounting in 2015."
+cap25 <- "When looking at percentage discount with total event attendence, trade shows and conventions seem to have a slight trend, whereas meetings do not."
+cap27 <- "Before looking at the next graphs, it is important to recognize the difference in number of events held in each month of each year for each event type. Lower numbers of events in the data mean it is more difficult to draw conclusions regarding trends or patterns."
 
 # Set font style
 
@@ -666,24 +665,6 @@ pres <- pres %>%
   ph_add_par(level = 2) %>%
   ph_add_text(str = "How many days in advance and event was booked",
               style = level_2) %>%
-  ph_add_par(level = 1) %>%
-  ph_add_text(str = "space_count",
-              style = level_1) %>%
-  ph_add_par(level = 2) %>%
-  ph_add_text(str = "= sum of the spaces in the list",
-              style = level_2) %>%
-  ph_add_par(level = 2) %>%
-  ph_add_text(str = "Number of rooms/salons/halls booked for an event",
-              style = level_2) %>%
-  ph_add_par(level = 1) %>%
-  ph_add_text(str = "number_of_days",
-              style = level_1) %>%
-  ph_add_par(level = 2) %>%
-  ph_add_text(str = "= end_date - start_date + 1",
-              style = level_2) %>%
-  ph_add_par(level = 2) %>%
-  ph_add_text(str = "Duration of an event in days",
-              style = level_2) %>%
   ph_with_text(type = "title", index = 1, str = "Variables Added for Analysis") %>%
   ph_with_text(type = "sldNum", str = "4" ) %>%
   
@@ -933,7 +914,7 @@ pres <- pres %>%
                             ggtitle("Mean Percentage Discount by Event Month, Grouped by Event Year") +
                             theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
              type = "body") %>%
-  ph_with_text(type = "sldNum", str = "20" ) %>%
+  ph_with_text(type = "sldNum", str = "19" ) %>%
   
   # Slide with Bar Chart (Number of Events of Each Type per month per year)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
@@ -962,7 +943,7 @@ pres <- pres %>%
                             theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5),
                                   axis.text.x = element_text(angle = 90, hjust = 1))),
              type = "body") %>%
-  ph_with_text(type = "sldNum", str = "21" ) %>%
+  ph_with_text(type = "sldNum", str = "20" ) %>%
   
   # Slide with Bar Chart (Event Year and Event Month - Conventions)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
@@ -997,7 +978,7 @@ pres <- pres %>%
                             theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5),
                                   plot.subtitle = element_text(size = 12, hjust = 0.5))),
              type = "body") %>%
-  ph_with_text(type = "sldNum", str = "22" ) %>%
+  ph_with_text(type = "sldNum", str = "21" ) %>%
   
   # Slide with Bar Chart (Event Year and Event Month - Trade Shows)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
@@ -1032,7 +1013,7 @@ pres <- pres %>%
                             theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5),
                                   plot.subtitle = element_text(size = 12, hjust = 0.5))),
              type = "body") %>%
-  ph_with_text(type = "sldNum", str = "23" ) %>%
+  ph_with_text(type = "sldNum", str = "22" ) %>%
   
   # Slide with Bar Chart (Event Year and Event Month - Meetings)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
@@ -1067,7 +1048,7 @@ pres <- pres %>%
                             theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5),
                                   plot.subtitle = element_text(size = 12, hjust = 0.5))),
              type = "body") %>%
-  ph_with_text(type = "sldNum", str = "24" ) %>%
+  ph_with_text(type = "sldNum", str = "23" ) %>%
   
   # Slide with Scatterplot (Total Event Attendance vs Rental Discount)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
@@ -1084,7 +1065,7 @@ pres <- pres %>%
                             ggtitle("Rental Discount by Total Event Attendance") +
                             theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
              type = "body") %>%
-  ph_with_text(type = "sldNum", str = "25" ) %>%
+  ph_with_text(type = "sldNum", str = "24" ) %>%
   
   # Slide with Scatterplot (Total Event Attendance vs Percentage Discount)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
@@ -1101,7 +1082,7 @@ pres <- pres %>%
                             ggtitle("Percentage Discount by Total Event Attendance") +
                             theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
              type = "body") %>%
-  ph_with_text(type = "sldNum", str = "26" ) %>%
+  ph_with_text(type = "sldNum", str = "25" ) %>%
   
   # Slide with Scatterplot (Food/Beverage Revenue and Type w/ Rental Discount)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
@@ -1119,7 +1100,7 @@ pres <- pres %>%
                             ggtitle("Rental Discount by Food/Beverage Revenue, Grouped by Event Type") +
                             theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
             type = "body") %>%
-  ph_with_text(type = "sldNum", str = "27" ) %>%
+  ph_with_text(type = "sldNum", str = "26" ) %>%
   
   # Slide with Scatterplot (Food/Beverage Revenue w/ Percentage Discount)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
@@ -1136,7 +1117,7 @@ pres <- pres %>%
                             ggtitle("Percentage Discount by Food/Beverage Revenue, Grouped by Event Type") +
                             theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
              type = "body") %>%
-  ph_with_text(type = "sldNum", str = "28" ) %>%
+  ph_with_text(type = "sldNum", str = "27" ) %>%
   
   
 
@@ -1156,7 +1137,7 @@ pres <- pres %>%
                             ggtitle("Rental Discount by Total Revenue Pre Discount, Grouped by Event Type") +
                             theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
              type = "body") %>%
-  ph_with_text(type = "sldNum", str = "29" ) %>%
+  ph_with_text(type = "sldNum", str = "28" ) %>%
   
   # Slide with Scatterplot (Total Revenue w/ Percentage Discount)
   add_slide(layout = "Title and Content", master = "Office Theme") %>%
@@ -1173,7 +1154,7 @@ pres <- pres %>%
                             ggtitle("Percentage Discount by Total Revenue Pre Discount, Grouped by Event Type") +
                             theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5))),
              type = "body") %>%
-  ph_with_text(type = "sldNum", str = "30" ) %>%
+  ph_with_text(type = "sldNum", str = "29" ) %>%
 
 # Save Powerpoint
 print(pres, target = "SCC Room Rental V2.pptx") %>%
