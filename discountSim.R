@@ -197,7 +197,7 @@ convSimPlotAll <- ggplot(
     color = "Starting\nrental discount",
     title = "The choice of minimum F&B revenue and initial discount has a large effect on revenue",
     subtitle = paste0(
-      "Effect of starting discount conditions on convention rental revenue, Jan 2015 - Jun 2017 events\n",
+      "Effect of starting discount conditions on convention rental revenue, Jan 2015 - Sep 2017 events\n",
       "Five discount levels, increases by 10% for every $30,000 in F&B revenue"
     )
   ) +
@@ -234,7 +234,7 @@ convSimPlotOff <- ggplot(
     color = "Starting\nrental discount",
     title = "Effect of starting discount conditions on convention rental revenue",
     subtitle = paste0(
-      "Jan 2015 - Jun 2017 events, off-peak only\n", 
+      "Jan 2015 - Sep 2017 events, off-peak only\n", 
       "Five discount levels, increases by 10% for every $30,000 in F&B revenue"
     )
   ) +
@@ -274,7 +274,7 @@ cdfPlot <- ggplot(
     x = "Food and beverage revenue",
     y = "Fraction of events",
     color = "Event type",
-    title = "Fraction of Jan 2015 - Jun 2017 events with given amounts of food and beverage revenue"
+    title = "Fraction of Jan 2015 - Sep 2017 events with given amounts of food and beverage revenue"
   ) +
   scale_x_continuous(limits = c(0, 200000), labels = scales::dollar) + 
   theme(plot.title = element_text(face = "bold"))
@@ -298,7 +298,7 @@ barPlotAll <- ggplot(
     y = "Fraction of events",
     fill = "Discount model",
     title = "Applied all year, proposed model would result in fewer discounted room rates",
-    title = "Fraction of Jan 2015 - Jun 2017 events receiving a discount by event type"
+    title = "Fraction of Jan 2015 - Sep 2017 events receiving a discount by event type"
   ) +
   scale_fill_discrete(labels = c("Proposed model", "Actual")) +
   coord_flip() + 
@@ -323,7 +323,7 @@ barPlotOff <- ggplot(
     x = "Event type",
     y = "Fraction of events",
     fill = "Discount model",
-    title = "Fraction of Jan 2015 - Jun 2017 events with a discount, off-peak only"
+    title = "Fraction of Jan 2015 - Sep 2017 events with a discount, off-peak only"
   ) +
   scale_fill_discrete(labels = c("Proposed model", "Actual")) +
   coord_flip() + 
@@ -346,7 +346,7 @@ barPlotOffDollars <- ggplot(
     x = "Event type",
     y = "Total room rental discount",
     fill = "Discount model",
-    title = "Total rental discounts for Jan 2015 - Jun 2017 events, off-peak only"
+    title = "Total rental discounts for Jan 2015 - Sep 2017 events, off-peak only"
   ) +
   scale_fill_discrete(labels = c("Proposed model", "Actual")) +
   scale_y_continuous(labels = scales::dollar) +
@@ -371,7 +371,7 @@ discScatter <- ggplot(
     y = "Proposed discount",
     size = "Total attendance",
     color = "Event month",
-    title = "Actual vs. proposed discounts for Jan 2015 - Jun 2017 conventions"
+    title = "Actual vs. proposed discounts for Jan 2015 - Sep 2017 conventions"
   ) +
   scale_color_discrete(labels = c("Peak", "Off-peak")) +
   scale_x_continuous(labels = scales::dollar) +
@@ -395,7 +395,7 @@ discRevScatter <- ggplot(
     y = "Proposed discount",
     size = "Total attendance",
     color = "Event month",
-    title = "F&B revenue vs. proposed discounts for Jan 2015 - Jun 2017 conventions"
+    title = "F&B revenue vs. proposed discounts for Jan 2015 - Sep 2017 conventions"
   ) +
   scale_color_discrete(labels = c("Peak", "Off-peak")) +
   scale_x_continuous(labels = scales::dollar) +
@@ -414,7 +414,7 @@ discFlexTable <- flextable(as.tibble(proposedDiscountMatrix)) %>%
   width(j = 1, width = 3) %>%
   width(j = 2, width = 3)
 
-ppt <- read_pptx("SCC Room Rental Template.pptx")
+ppt <- read_pptx("pres.pptx")
 
 ppt <- ppt %>%
   add_slide(layout = "Title Slide", master = "Office Theme") %>%
@@ -489,5 +489,5 @@ ppt <- ppt %>%
   ) %>%
   ph_with_vg(code = print(discRevScatter), type = "body", index = 1)
 
-print(ppt, target = "SCC Room Rental Template.pptx")
+print(ppt, target = "pres.pptx")
 

@@ -330,39 +330,6 @@ create_month_barchart <- function(df, category, y) {
 # Powerpoint Creation
 #---------------------
 
-# Set Captions
-
-intro <- "The following tables and charts show rental discount patterns over the past few years in relation to different variables."
-intro2 <- "From initial analyses, there are not many conclusive patterns for discounting room rentals. Instead, a great deal of variation exists between discounts, regardless of which variable is being observed."
-intro3 <- "One strong trend does exist with conventions being discounted more heavily in January."
-intro4 <- "The most important overarching observation is that there exists a relationship between the dollar value of the rental discount and the total event revenue before discount, but this relationship disappears when replacing dollar value discount with percentage discount."
-cap1 <- "Percentage discount varies between 7% and 14% based on the type of event."
-cap2 <- "Percentage discount varies each year with 2016 showing the highest average and median discount."
-cap3 <- "This is potentially due to the majority of events during these months being Meetings."
-cap4 <- "June, August, and May events appear to be discounted the most."
-cap5 <- "Events booked in January, April, August, October, and December have median discount rates of 0%. The highest number of events booked in a single month is January, with 118 more events than the next highest month March."
-cap6 <- "The number of days an event was booked in advance had no influence on the discount."
-cap7 <- "Analysis was conducted with both dollar values and percentages to show any discrepancies in patterns."
-cap8 <- "Discount percentages vary by event type when grouped by the year the event was booked as well."
-cap9 <- "Conventions and Consumer Tradeshows appear to be the only types that show correlation between rental revenue and mean percentage discount. Note, Private/Social events were excluded from this graph."
-cap10 <- "In most cases, 2016 appears to have had higher average discounting than 2015."
-cap11 <- "This graph shows the same variables as the previous, but excludes all Private/Social events."
-cap12 <- "Average discount rates by event month range between 7% and 21%."
-cap13 <- "There appears to be no relationship between food and beverage revenues and percentage discount."
-cap14 <- "January conventions are discounted the most out of all months, and there are no conventions held in August or December that were discounted."
-cap15 <- "This plot shows that the dollar value of the food and beverage revenue has some correlation with the dollar value of the rental discount for conventions."
-cap16 <- "Total event attendance has a slight trend when looking at the dollar value of the rental discount applied to conventions specifically."
-cap17 <- "The rental discount dollar value seems to show some trend when plotted against total revenue before discounts, especially for conventions."
-cap18 <- "Meetings receive the highest average percentage discounts."
-cap19 <- "When looking at percentage discount compared with total revenue before discount, the patten displayed in the dollar value discount plot disappears."
-cap20 <- "August and October trade shows are discounted the most, and there are no trade shows in the months of July or December that received discounts."
-cap21 <- "June meetings are discounted the most on average, and February meetings are discounted far less than any other month."
-cap22 <- "Conventions do not show any clear pattern in average percentage discounts over the past three years when comparing monthly. This could be partially due to the events in each month being different sizes. For example, January 2017 appears to have high average discounts, however, there were very few conventions held in January which can be confirmed on the previous slide."
-cap23 <- "There is less data for trade shows, so it is difficult to draw any conclusive patterns from this chart."
-cap24 <- "There appears to be a slight pattern for discounting Meetings in 2016, and a lack of discounting in 2015."
-cap25 <- "When looking at percentage discount with total event attendence, trade shows and conventions seem to have a slight trend, whereas meetings do not."
-cap27 <- "Before looking at the next graphs, it is important to recognize the difference in number of events held in each month of each year for each event type. Lower numbers of events in the data mean it is more difficult to draw conclusions regarding trends or patterns."
-
 # Set font style
 
 text_prop <- fp_text(font.size = 16)
@@ -502,6 +469,52 @@ mtg_stats2 <- expand.grid(event_year = unique(mtg_stats$event_year),
                           event_month = unique(mtg_stats$event_month)) %>%
 data.frame %>% left_join(mtg_stats)
 
+
+# Presentation text variables
+
+numEvents <- nrow(d1)
+numConv <- nrow(d1 %>% filter(type == "Convention (CONV)"))
+numTrade <- nrow(d1 %>% filter(type == "Consumer Tradeshow (TRSH)"))
+numMtg <- nrow(d1 %>% filter(type == "Meeting (MTG)"))
+numCleanEvents <- nrow(d2)
+numCleanConv <- nrow(d2 %>% filter(type == "Convention (CONV)"))
+numCleanTrade <- nrow(d2 %>% filter(type == "Consumer Tradeshow (TRSH)"))
+numCleanMtg <- nrow(d2 %>% filter(type == "Meeting (MTG)"))
+numImpact <- nrow(d1 %>% filter(! is.na(actual_economic_impact)))
+
+# Slide captions
+
+intro <- "The following tables and charts show rental discount patterns over the past few years in relation to different variables."
+intro2 <- "From initial analyses, there are not many conclusive patterns for discounting room rentals. Instead, a great deal of variation exists between discounts, regardless of which variable is being observed."
+intro3 <- "One strong trend does exist with conventions being discounted more heavily in January."
+intro4 <- "The most important overarching observation is that there exists a relationship between the dollar value of the rental discount and the total event revenue before discount, but this relationship disappears when replacing dollar value discount with percentage discount."
+cap1 <- "Percentage discount varies between 7% and 14% based on the type of event."
+cap2 <- "Percentage discount varies each year with 2016 showing the highest average and median discount."
+cap3 <- "This is potentially due to the majority of events during these months being Meetings."
+cap4 <- "June, August, and May events appear to be discounted the most."
+cap5 <- "Events booked in January, April, August, October, and December have median discount rates of 0%. The highest number of events booked in a single month is January, with 118 more events than the next highest month March."
+cap6 <- "The number of days an event was booked in advance had no influence on the discount."
+cap7 <- "Analysis was conducted with both dollar values and percentages to show any discrepancies in patterns."
+cap8 <- "Discount percentages vary by event type when grouped by the year the event was booked as well."
+cap9 <- "Conventions and Consumer Tradeshows appear to be the only types that show correlation between rental revenue and mean percentage discount. Note, Private/Social events were excluded from this graph."
+cap10 <- "In most cases, 2016 appears to have had higher average discounting than 2015."
+cap11 <- "This graph shows the same variables as the previous, but excludes all Private/Social events."
+cap12 <- "Average discount rates by event month range between 7% and 21%."
+cap13 <- "There appears to be no relationship between food and beverage revenues and percentage discount."
+cap14 <- "January conventions are discounted the most out of all months, and there are no conventions held in August or December that were discounted."
+cap15 <- "This plot shows that the dollar value of the food and beverage revenue has some correlation with the dollar value of the rental discount for conventions."
+cap16 <- "Total event attendance has a slight trend when looking at the dollar value of the rental discount applied to conventions specifically."
+cap17 <- "The rental discount dollar value seems to show some trend when plotted against total revenue before discounts, especially for conventions."
+cap18 <- "Meetings receive the highest average percentage discounts."
+cap19 <- "When looking at percentage discount compared with total revenue before discount, the patten displayed in the dollar value discount plot disappears."
+cap20 <- "August and October trade shows are discounted the most, and there are no trade shows in the months of July or December that received discounts."
+cap21 <- "June meetings are discounted the most on average, and February meetings are discounted far less than any other month."
+cap22 <- "Conventions do not show any clear pattern in average percentage discounts over the past three years when comparing monthly. This could be partially due to the events in each month being different sizes. For example, January 2017 appears to have high average discounts, however, there were very few conventions held in January which can be confirmed on the previous slide."
+cap23 <- "There is less data for trade shows, so it is difficult to draw any conclusive patterns from this chart."
+cap24 <- "There appears to be a slight pattern for discounting Meetings in 2016, and a lack of discounting in 2015."
+cap25 <- "When looking at percentage discount with total event attendence, trade shows and conventions seem to have a slight trend, whereas meetings do not."
+cap27 <- "Before looking at the next graphs, it is important to recognize the difference in number of events held in each month of each year for each event type. Lower numbers of events in the data mean it is more difficult to draw conclusions regarding trends or patterns."
+
 # Build Slide Deck
 
 pres <- read_pptx(file.path("V:", "Economic Intelligence", "Shaw Conference Centre",
@@ -546,16 +559,16 @@ pres <- pres %>%
   ph_add_text(str = "Data from USI",
               style = level_1) %>%
   ph_add_par(level = 2) %>%
-  ph_add_text(str = "2940 events (135 conventions, 56 trade shows, and 911 meetings)",
+  ph_add_text(str = str_interp("${numEvents} events (${numConv} conventions, ${numTrade} trade shows, and ${numMtg} meetings)"),
               style = level_2) %>%
   ph_add_par(level = 2) %>%
-  ph_add_text(str = "Includes all events from USI that occured between January 2015 and the end of June 2017",
+  ph_add_text(str = "Includes all events from USI that occured between January 2015 and the end of September 2017",
               style = level_2) %>%
   ph_add_par(level = 1) %>%
   ph_add_text(str = "Usable Data for Analysis (Including only Conventions, Trade Shows, and Meetings)",
               style = level_1) %>%
   ph_add_par(level = 2) %>%
-  ph_add_text(str = "385 events (103 conventions, 42 trade shows, and 240 meetings)",
+  ph_add_text(str = str_interp("${numCleanEvents} events (${numCleanConv} conventions, ${numCleanTrade} trade shows, and ${numCleanMtg} meetings)"),
               style = level_2) %>%
   ph_add_par(level = 2) %>%
   ph_add_text(str = "Events with NA (missing) values in the following variables were omitted:",
@@ -591,7 +604,7 @@ pres <- pres %>%
   ph_add_text(str = "actual_economic_impact",
               style = level_2) %>%
   ph_add_par(level = 3) %>%
-  ph_add_text(str = "Only 77/2940 events had values for this variable",
+  ph_add_text(str = str_interp("Only ${numImpact}/${numEvents} events had values for this variable"),
               style = level_3) %>%
   ph_add_par(level = 1) %>%
   ph_add_text(str = "Variables that could not be analyzed due to complexity/variable format issues:",
@@ -1157,6 +1170,10 @@ pres <- pres %>%
   ph_with_text(type = "sldNum", str = "29" ) %>%
 
 # Save Powerpoint
-print(pres, target = "SCC Room Rental V2.pptx") %>%
+if (file.exists("pres.pptx")) {
+  file.remove("pres.pptx")
+}
+  
+print(pres, target = "pres.pptx") %>%
   invisible()
 
